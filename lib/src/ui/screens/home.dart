@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
-import 'package:pkarte/src/ui/components/costume_expansion.dart';
+
 import 'package:pkarte/src/ui/screens/new_etiqueta_form.dart';
-import '../../models/etiqueta.dart';
-import '../../models/palette_enum.dart';
-import '../components/color_selector.dart';
+
 import '../components/costume_list.dart';
 import '../screens_controllers/home_controller.dart';
 
@@ -37,7 +35,7 @@ class _MyHomePageState extends StateMVC {
     print('iniciando estado');
   }
 
-  void _changeTab  (int index){
+  void _changeTab(int index){
     setState(() {
       _selectedIndex = index;
     });
@@ -46,32 +44,12 @@ class _MyHomePageState extends StateMVC {
   @override
   Widget build(BuildContext context) {
     List<Widget> widgetOptions = <Widget>[
-      //ColorSelector(palette: PaletteColor.brilloso,currentColor: _con.currentColor?? Colors.blue, onSelectColor:_con.selectColor,),
-      Container(
-        child: FutureBuilder(
-          future: _con.initLocation(),
-          builder:(context,snapshot) {
-            if(snapshot.hasData) {
-             return GoogleMap(
-                initialCameraPosition: CameraPosition(
-                  target: LatLng((snapshot.data as LocationData).latitude!,
-                      (snapshot.data as LocationData).longitude!),
-                  zoom: 14.5,
-                ),
-               markers: _con.markers.toSet(),
-              );
-            }
-            else {
-              return const CircularProgressIndicator();
-            }
-          }
-        ),
-      ),
-      _home(_con.etiquetas),
+      _map(),
+      _etiquetas(),
     ];
     return Scaffold(
       appBar: AppBar(
-        title: Text('hola mundo'),
+        title: const Text('pKarte'),
         leading: Builder(
           builder: (BuildContext context) {
             return _selectedIndex == 0
@@ -79,74 +57,84 @@ class _MyHomePageState extends StateMVC {
                 onPressed: () {
                   Scaffold.of(context).openDrawer();
                 },
-                icon: const Icon(Icons.filter_alt_rounded))
-                : SizedBox();
+                icon: const Icon(Icons.filter_alt_rounded)) : const SizedBox.shrink();
           },
         ),
       ),
-      drawer:_drawer(_con.etiquetas,_con.toggle),
+      drawer:Drawer(child:CostumeList(list: _con.etiquetas,toggle: _con.toggle,) ,),
       body: widgetOptions.elementAt(_selectedIndex),
-
-      bottomNavigationBar:_bottomNavigation(_selectedIndex, _changeTab),
-      floatingActionButton:FloatingActionButton(
-        onPressed:(){
-          _selectedIndex == 1 ? Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const EtiquetaForm()),
-            ): print('ouch');},
-        child: Icon(Icons.add),
-      ),
-
+      bottomNavigationBar:_bottomNavigation(),
+      floatingActionButton:_floatingButton(),
     );// This trailing comma makes auto-formatting nicer for build methods.
   }
 
-}
-
-_bottomNavigation(int index, Function(int) tapFunction){
-  return(
-      BottomNavigationBar(
-        currentIndex: index,
-        selectedItemColor: Colors.white,
-        onTap:tapFunction,
-        backgroundColor: Colors.teal,
-        iconSize: 40,
-
-        items:const  <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-              icon:Icon(Icons.home),
-              label:'Home'),
-          BottomNavigationBarItem(
-              icon:  Icon(Icons.format_list_bulleted),
-              label:'Etiquetas' )
-        ],
-      )
-  );
-}
-
-_drawer(List<Etiqueta> etiquetas, Function(int) _toggle){
-  return Drawer(
-      child:CostumeList(list: etiquetas,toggle: _toggle,)
-  );
-
-
-}
-
-_home(List<Etiqueta> list_etiqueta){
-  return Padding(
-    padding: const EdgeInsets.all(10.0),
-    child: Container(
+  _etiquetas(){
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
       child: ListView.builder(
         itemBuilder: (context, index) {
           return ListTile(
-            leading: Container(width: 40,height: 40,color: list_etiqueta[index].color!.color,),
-            title: Text(list_etiqueta[index].name!),
-            trailing: Icon(Icons.delete),
+            leading: Container(width: 40,height: 40,color: _con.etiquetas[index].color!.color,),
+            title: Text(_con.etiquetas[index].name!),
+            trailing: const Icon(Icons.delete),
             enabled: true,
           );},
-        itemCount: list_etiqueta.length,
+        itemCount: _con.etiquetas.length,
       ),
-    ),
-  );
+    );
+  }
 
+  _map() {
+    return Container(
+      child: FutureBuilder(
+          future: _con.initLocation(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return GoogleMap(
+                initialCameraPosition: CameraPosition(
+                  target: LatLng((snapshot.data as LocationData).latitude!,
+                      (snapshot.data as LocationData).longitude!),
+                  zoom: 14.5,
+                ),
+                markers: _con.markers.toSet(),
+              );
+            }
+            else {
+              return const CircularProgressIndicator();
+            }
+          }
+      ),
+    );
+  }
+
+  _floatingButton(){
+    return FloatingActionButton(
+      onPressed:(){
+        _selectedIndex == 1 ? Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const EtiquetaForm()),
+        ): print('ouch');},
+      child: const Icon(Icons.add),
+    );
+  }
+
+  _bottomNavigation(){
+    return(
+        BottomNavigationBar(
+          currentIndex:_selectedIndex,
+          selectedItemColor: Colors.white,
+          onTap:_changeTab,
+          backgroundColor: Colors.teal,
+          iconSize: 40,
+          items:const  <BottomNavigationBarItem>[
+            BottomNavigationBarItem(
+                icon:Icon(Icons.home),
+                label:'Home'),
+            BottomNavigationBarItem(
+                icon:  Icon(Icons.format_list_bulleted),
+                label:'Etiquetas' )
+          ],
+        )
+    );
+  }
 }
-

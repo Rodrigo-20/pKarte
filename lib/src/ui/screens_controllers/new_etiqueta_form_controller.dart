@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
 import 'package:pkarte/src/managers/data_manager.dart';
 import 'package:pkarte/src/models/color_item.dart';
-
 import '../../models/etiqueta.dart';
 
 class EtiquetaFormController extends ControllerMVC {
@@ -33,10 +32,8 @@ class EtiquetaFormController extends ControllerMVC {
     }
 
   void addEtiqueta( ) {
-    //esta es la manera correcta, usando 2 metodos ?
     if(nameController.text!= ""){
-    Etiqueta etiqueta = Etiqueta(
-        name: nameController.text, description: descriptionController.text,color: currentColor);
+    Etiqueta etiqueta = Etiqueta(name: nameController.text, description: descriptionController.text,color: currentColor);
     dataBase.addEtiqueta(etiqueta);
     nameController.text = "";
     descriptionController.text = "";

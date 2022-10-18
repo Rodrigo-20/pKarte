@@ -47,10 +47,10 @@ class HomeController extends ControllerMVC{
     DataManager();
     _dataBase = DataManager.data;
     _etiquetas = _dataBase.getEtiquetas();
-    _currentEtiqueta = _etiquetas[0];
-    if(_currentEtiqueta!.markers!.length != 0){
+    _currentEtiqueta = _etiquetas[1];
+    if(_currentEtiqueta!.getMarkers().length != 0){
       print(_etiquetas[0].name);
-      _currentEtiqueta!.markers!.forEach((element) {
+      _currentEtiqueta!.getMarkers().forEach((element) {
         _markers.add(element);
         print(element);});
 
@@ -70,8 +70,7 @@ class HomeController extends ControllerMVC{
   }
 
   Future<LocationData> initLocation() async{
-    location = new Location();
-
+    location = Location();
     _serviceEnabled = await location.serviceEnabled();
     if (!_serviceEnabled) {
       _serviceEnabled = await location.requestService();

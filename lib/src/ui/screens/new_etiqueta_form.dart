@@ -1,11 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
-import 'package:pkarte/src/models/color_item.dart';
 import 'package:pkarte/src/models/palette_enum.dart';
 import 'package:pkarte/src/ui/screens_controllers/new_etiqueta_form_controller.dart';
-
-import '../../models/etiqueta.dart';
 import '../components/color_selector.dart';
 
 class EtiquetaForm extends StatefulWidget {
@@ -41,7 +38,7 @@ class _EtiquetaFormState extends StateMVC {
   }
 
 
-  _form( ){
+  _form(){
     return Container(
       color: Colors.white,
       child: Padding(
@@ -56,7 +53,7 @@ class _EtiquetaFormState extends StateMVC {
                 labelText: 'Nombre',
                 ),
               ),
-              SizedBox( height: 20,),
+              const SizedBox( height: 20,),
               TextField(
                 controller: _con.descriptionController,
                 decoration: const InputDecoration(
@@ -84,8 +81,5 @@ class _EtiquetaFormState extends StateMVC {
     );
   }
 
-_colorSelector(){
-
-}
 }
 

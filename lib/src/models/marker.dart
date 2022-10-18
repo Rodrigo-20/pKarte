@@ -1,15 +1,15 @@
-class CostumeMarker{
-  int? id;
-  String? name;
-  double? longitud;
-  double? latitude;
+class CustomLocation{
+  String id;
+  double latitude;
+  double longitud;
+
 
   static int cantidadInstancias = 0;
   void _contarInstancias(){
     cantidadInstancias++;
   }
 
-  CostumeMarker({required this.name,required this.longitud, required this.latitude}){
+  CustomLocation({required this.id, required this.latitude,required this.longitud}){
     _contarInstancias();
   }
 }

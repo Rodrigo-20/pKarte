@@ -9,15 +9,15 @@ class Etiqueta{
   String? name;
   String? description;
   ColorItem? color;
-  List<Marker>? markers = [];
-  List<CostumeMarker> locations = [];
+  List<Marker>? _markers = [];
+  List<CustomLocation>? locations = [];
   bool? active;
   int id= _cantidad;
   static int _cantidad= 1;
   void _contar(){
     _cantidad++;
   }
-  Etiqueta({required this.name,this.description, this.color, this.active=false, this.markers}) {
+  Etiqueta({required this.name,this.description, this.color, this.active=false, this.locations}) {
     color ??= PaletteColor.blue;
     _contar();
   }
@@ -30,15 +30,28 @@ class Etiqueta{
 
 
   void addMarker(String name, double lati,double long)  {
-    CostumeMarker marker = CostumeMarker(name: name, longitud: long, latitude: lati);
+    CustomLocation marker = CustomLocation(id: name, longitud: long, latitude: lati);
 
   }
 
-  void setMarkers(List<Marker> markers){
-
+  List<Marker> getMarkers(){
+    if(locations!= null) {
+      locations!.forEach((element) {
+        _markers!.add(Marker(
+            markerId: MarkerId(element.id),
+            position: LatLng(element.latitude, element.longitud),
+            icon: BitmapDescriptor.defaultMarkerWithHue(color!.hueColor),
+        ));
+      });
+      return _markers!;
+    }
+    else {
+      return [];
+    }
   }
 
-  void removeMarker(CostumeMarker marker){
-    markers!.remove(marker);
+
+  void removeMarker(Marker marker){
+    _markers!.remove(marker);
   }
 }
