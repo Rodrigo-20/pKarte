@@ -1,11 +1,8 @@
 
-
-
 import 'package:flutter/cupertino.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
-import 'package:pkarte/src/models/marker.dart';
 import '../../managers/data_manager.dart';
 import '../../models/etiqueta.dart';
 

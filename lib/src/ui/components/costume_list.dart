@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../models/etiqueta.dart';
+import '../../models/filtro.dart';
 
 class CostumeList extends StatelessWidget {
   List<Etiqueta>? list;
@@ -23,20 +25,27 @@ class CostumeList extends StatelessWidget {
                 child:const Text("Etiquetas",style: TextStyle(fontSize: 25),));
           }
           else {
-            return _cell( list![index - 1], index -1);
+            return _cell( list![index - 1], index -1,context);
           }
         },
         itemCount: list!.length + 1
     );
   }
 
-  _cell(Etiqueta item, int index){
+  _cell(Etiqueta item, int index,BuildContext context){
+    var filter = context.read<FilterModel>();
     return (
         SwitchListTile(
           title: Text(item.name!),
           value: item.active!,
           onChanged: (bool value){
              toggle(index);
+             if(value){
+               filter.add(item);
+             }
+             else {
+               filter.remove(item);
+             }
           } ,
         )
     );

@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:pkarte/src/models/filtro.dart';
 import 'package:pkarte/src/ui/screens/home.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+      ChangeNotifierProvider(
+        create: (context) => FilterModel(),
+        child: const MyApp() ,
+      )
+  );
 }
 
 class MyApp extends StatelessWidget {

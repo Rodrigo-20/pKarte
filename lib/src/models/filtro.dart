@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'etiqueta.dart';
 
-class Filtro extends ChangeNotifier{
+class FilterModel extends ChangeNotifier{
   final  List<Etiqueta> _etiquetas = [];
 
   List<Etiqueta> get etiquetas => _etiquetas;

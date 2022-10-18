@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
-
 import 'package:pkarte/src/ui/screens/new_etiqueta_form.dart';
-
+import 'package:provider/provider.dart';
+import '../../models/filtro.dart';
 import '../components/costume_list.dart';
 import '../screens_controllers/home_controller.dart';
 
@@ -85,25 +85,36 @@ class _MyHomePageState extends StateMVC {
   }
 
   _map() {
-    return Container(
-      child: FutureBuilder(
-          future: _con.initLocation(),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              return GoogleMap(
-                initialCameraPosition: CameraPosition(
-                  target: LatLng((snapshot.data as LocationData).latitude!,
-                      (snapshot.data as LocationData).longitude!),
-                  zoom: 14.5,
-                ),
-                markers: _con.markers.toSet(),
-              );
-            }
-            else {
-              return const CircularProgressIndicator();
-            }
+    return Consumer<FilterModel>(
+      builder: (context,filter,child) {
+        List<Marker> markers = [];
+        filter.etiquetas.forEach((element) {
+          if(element.getMarkers().isNotEmpty){
+               var items = element.getMarkers();
+               markers.addAll(items);
           }
-      ),
+        });
+        return Container(
+          child: FutureBuilder(
+              future: _con.initLocation(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return GoogleMap(
+                    initialCameraPosition: CameraPosition(
+                      target: LatLng((snapshot.data as LocationData).latitude!,
+                          (snapshot.data as LocationData).longitude!),
+                      zoom: 14.5,
+                    ),
+                    markers:markers.toSet(),
+                  );
+                }
+                else {
+                  return const CircularProgressIndicator();
+                }
+              }
+          ),
+        );
+      }
     );
   }
 
