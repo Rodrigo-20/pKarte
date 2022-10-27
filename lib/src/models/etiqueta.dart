@@ -11,13 +11,13 @@ class Etiqueta{
   ColorItem? color;
   List<Marker>? _markers = [];
   List<CustomLocation>? locations = [];
-  bool? active;
+  bool isActive;
   int id= _cantidad;
   static int _cantidad= 1;
   void _contar(){
     _cantidad++;
   }
-  Etiqueta({required this.name,this.description, this.color, this.active=false, this.locations}) {
+  Etiqueta({required this.name,this.description, this.color, this.isActive=false, this.locations}) {
     color ??= PaletteColor.blue;
     _contar();
   }
@@ -26,15 +26,20 @@ class Etiqueta{
       :name = json['name'],
         description = json['description']?? '',
         color = json['color'],
-        active = json['active'];
+        isActive = json['active'];
 
+  void changeState(bool value){
+    isActive = value;
+  }
 
   void addMarker(String name, double lati,double long)  {
     CustomLocation marker = CustomLocation(id: name, longitud: long, latitude: lati);
-
   }
 
   List<Marker> getMarkers(){
+    _markers = [];
+
+    
     if(locations!= null) {
       locations!.forEach((element) {
         _markers!.add(Marker(

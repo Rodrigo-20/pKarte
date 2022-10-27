@@ -5,10 +5,11 @@ import 'package:provider/provider.dart';
 import '../../models/etiqueta.dart';
 import '../../models/filtro.dart';
 
-class CostumeList extends StatelessWidget {
+class CustomColorList extends StatelessWidget {
   List<Etiqueta>? list;
-  final Function(int) toggle;
-  CostumeList({Key? key, required this.list, required this.toggle}) : super(key: key);
+  //final Function(int,bool) toggle;
+  final Function(Etiqueta,bool) toggle;
+  CustomColorList({Key? key, required this.list, required this.toggle}) : super(key: key);
 
 @override
   Widget build(BuildContext context) {
@@ -28,20 +29,21 @@ class CostumeList extends StatelessWidget {
             return _cell( list![index - 1], index -1,context);
           }
         },
-        itemCount: list!.length + 1
+        itemCount:list!.length + 1
     );
   }
 
   _cell(Etiqueta item, int index,BuildContext context){
-    var filter = context.read<FilterModel>();
+    var filter = context.watch<FilterModel>();
     return (
         SwitchListTile(
           title: Text(item.name!),
-          value: item.active!,
-          onChanged: (bool value){
-             toggle(index);
-             if(value){
-               filter.add(item);
+          value: filter.etiquetas.contains(item),
+          onChanged: (bool newValue){
+             if(newValue){
+               if(filter.etiquetas.contains(item)==false){
+                 filter.add(item);
+               }
              }
              else {
                filter.remove(item);

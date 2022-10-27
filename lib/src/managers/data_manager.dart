@@ -1,8 +1,6 @@
 import 'package:mvc_pattern/mvc_pattern.dart';
 import 'package:pkarte/src/data_access/dummy.dart';
 import 'package:pkarte/src/interfaces/data_access.dart';
-import 'package:pkarte/src/ui/screens_controllers/home_controller.dart';
-
 import '../models/etiqueta.dart';
 
 class DataManager extends ControllerMVC{
@@ -15,6 +13,7 @@ class DataManager extends ControllerMVC{
 
   DataManager._internal(this.dataAccess);
   static DataManager get data => _this!;
+
   final IDataAccess dataAccess;
 
   List<Etiqueta> getEtiquetas(){

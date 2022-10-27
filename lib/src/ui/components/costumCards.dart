@@ -7,5 +7,4 @@ class costumCard   {
   final IconData? icon;
   const costumCard({required this.text1,this.text2, this.text3, this.icon});
 
-
 }

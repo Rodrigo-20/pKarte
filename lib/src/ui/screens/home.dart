@@ -5,7 +5,7 @@ import 'package:mvc_pattern/mvc_pattern.dart';
 import 'package:pkarte/src/ui/screens/new_etiqueta_form.dart';
 import 'package:provider/provider.dart';
 import '../../models/filtro.dart';
-import '../components/costume_list.dart';
+import '../components/filter_component.dart';
 import '../screens_controllers/home_controller.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -61,10 +61,9 @@ class _MyHomePageState extends StateMVC {
           },
         ),
       ),
-      drawer:Drawer(child:CostumeList(list: _con.etiquetas,toggle: _con.toggle,) ,),
       body: widgetOptions.elementAt(_selectedIndex),
       bottomNavigationBar:_bottomNavigation(),
-      floatingActionButton:_floatingButton(),
+      floatingActionButton:_floatingButtons(),
     );// This trailing comma makes auto-formatting nicer for build methods.
   }
 
@@ -74,7 +73,7 @@ class _MyHomePageState extends StateMVC {
       child: ListView.builder(
         itemBuilder: (context, index) {
           return ListTile(
-            leading: Container(width: 40,height: 40,color: _con.etiquetas[index].color!.color,),
+            leading: Container(width: 40, height: 40, color: _con.etiquetas[index].color!.color,),
             title: Text(_con.etiquetas[index].name!),
             trailing: const Icon(Icons.delete),
             enabled: true,
@@ -87,11 +86,11 @@ class _MyHomePageState extends StateMVC {
   _map() {
     return Consumer<FilterModel>(
       builder: (context,filter,child) {
-        List<Marker> markers = [];
+        List<Marker> _markers = [];
         filter.etiquetas.forEach((element) {
           if(element.getMarkers().isNotEmpty){
                var items = element.getMarkers();
-               markers.addAll(items);
+               _markers.addAll(items);
           }
         });
         return Container(
@@ -105,11 +104,15 @@ class _MyHomePageState extends StateMVC {
                           (snapshot.data as LocationData).longitude!),
                       zoom: 14.5,
                     ),
-                    markers:markers.toSet(),
+                    //circles: _con.circles.toSet(),
+                    markers:_markers.toSet(),
+                    //myLocationButtonEnabled: true,
+                    myLocationEnabled: true,
+
                   );
                 }
                 else {
-                  return const CircularProgressIndicator();
+                  return const Center(child: CircularProgressIndicator());
                 }
               }
           ),
@@ -118,14 +121,17 @@ class _MyHomePageState extends StateMVC {
     );
   }
 
-  _floatingButton(){
-    return FloatingActionButton(
-      onPressed:(){
-        _selectedIndex == 1 ? Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const EtiquetaForm()),
-        ): print('ouch');},
-      child: const Icon(Icons.add),
+  _floatingButtons(){
+    return Container(
+        margin:_selectedIndex == 0 ? const EdgeInsets.only(right: 0,bottom: 100) : null,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            _filterButton(),
+            const SizedBox(height: 20,),
+            _addButton(),
+          ],
+        )
     );
   }
 
@@ -148,4 +154,33 @@ class _MyHomePageState extends StateMVC {
         )
     );
   }
+
+  _filterButton(){
+    return _selectedIndex == 0
+        ? FloatingActionButton(
+      onPressed: (){
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return
+                FilterComponent(color: Colors.teal.shade400, items: _con.etiquetas, onTap: (lista){print(lista);},); }
+        );
+      },
+      elevation: 8,
+      child: const Icon(Icons.filter_alt_rounded),)
+        :const SizedBox.shrink();
+  }
+
+  _addButton(){
+    return FloatingActionButton(
+      onPressed:(){
+        _selectedIndex == 1 ? Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const EtiquetaForm()),
+        ): _con.getLocation().then((value) => print(value.longitude));},
+      elevation: 8,
+      child: const Icon(Icons.add),
+    );
+  }
+
 }

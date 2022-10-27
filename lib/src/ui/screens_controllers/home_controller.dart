@@ -1,5 +1,6 @@
-
+import 'dart:io';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
@@ -19,7 +20,7 @@ class HomeController extends ControllerMVC{
   HomeController._();
 
 
-  late DataManager _dataBase ;
+  late DataManager _dataManager ;
   static HomeController get con => _instance!;
   List<Etiqueta> _etiquetas = [];
   List<Etiqueta> get etiquetas => _etiquetas;
@@ -27,6 +28,7 @@ class HomeController extends ControllerMVC{
   List pages = [];
   Color? currentColor;
   late LatLng center  ;
+  late List<Circle> circles = [];
   late bool _serviceEnabled;
   late PermissionStatus _permissionGranted;
   late LocationData locationData;
@@ -35,6 +37,8 @@ class HomeController extends ControllerMVC{
   List<Marker> _markers = [];
   List<Marker> get markers => _markers;
 
+
+
   void onMapCreated(GoogleMapController controller) {
     mapController = controller;
   }
@@ -42,8 +46,8 @@ class HomeController extends ControllerMVC{
 
   void initPage(){
     DataManager();
-    _dataBase = DataManager.data;
-    _etiquetas = _dataBase.getEtiquetas();
+    _dataManager = DataManager.data;
+    _etiquetas = _dataManager.getEtiquetas();
     _currentEtiqueta = _etiquetas[1];
     if(_currentEtiqueta!.getMarkers().length != 0){
       print(_etiquetas[0].name);
@@ -59,11 +63,12 @@ class HomeController extends ControllerMVC{
   }
 
 
-  void toggle(int index) {
+  void toggle(Etiqueta item,bool value) {
     setState(() {
-      _etiquetas[index].active = !_etiquetas[index].active!;
+      item.changeState(value);
+      //_etiquetas[index].changeState(value);
       });
-    _dataBase.saveEtiquetas(_etiquetas);
+    _dataManager.saveEtiquetas(_etiquetas);
   }
 
   Future<LocationData> initLocation() async{
@@ -85,14 +90,13 @@ class HomeController extends ControllerMVC{
     }
 
     locationData = await location.getLocation();
-    print(locationData.latitude);
-    print(locationData.longitude);
     _markers.add(
       Marker(markerId: MarkerId('source'),position:LatLng(locationData.latitude!, locationData.longitude!),)
     );
+
+    circles.add(Circle(circleId: CircleId('source'),center: LatLng(locationData.latitude!, locationData.longitude!), radius: 4, fillColor:Colors.blueAccent,strokeColor: Colors.blueAccent));
     return locationData;
-    //center = LatLng( locationData.latitude!,locationData.longitude!);
-    //print(center);
+
   }
 
   Future<LocationData> getLocation () async{
