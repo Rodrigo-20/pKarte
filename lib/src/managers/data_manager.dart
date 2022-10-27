@@ -28,20 +28,7 @@ class DataManager extends ControllerMVC{
     dataAccess.addEtiqueta(etiqueta);
   }
 
-  /*
-  List<Etiqueta> result = [Etiqueta(name: 'hola mundo'),Etiqueta(name: 'hola mundo'),Etiqueta(name: 'hola mundo'),Etiqueta(name: 'hola mundo')];
-
-  List<Etiqueta> getEtiquetas(){
-     return result;
-   }
-
-  void saveEtiquetas(List<Etiqueta> etiquetas){
-    result = etiquetas;
+  void removeEtiqueta(Etiqueta etiqueta){
+    dataAccess.removeEtiqueta(etiqueta);
   }
-
-  void addEtiqueta(Etiqueta etiqueta){
-    result.add(etiqueta);
-    //_controller.addEtiqueta(etiqueta);
-  }
-*/
 }

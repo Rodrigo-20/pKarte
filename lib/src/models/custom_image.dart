@@ -4,5 +4,6 @@ class CustomImage{
   Image image;
   double latitude;
   double longitude;
-  CustomImage({required this.image, required this.latitude, required this.longitude});
+  String id;
+  CustomImage({required this.image, required this.latitude, required this.longitude, required this.id});
 }

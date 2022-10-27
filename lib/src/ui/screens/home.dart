@@ -50,7 +50,7 @@ class _MyHomePageState extends StateMVC {
     return Scaffold(
       appBar: AppBar(
         title: const Text('pKarte'),
-        leading: Builder(
+        /*leading: Builder(
           builder: (BuildContext context) {
             return _selectedIndex == 0
                 ? IconButton(
@@ -59,7 +59,7 @@ class _MyHomePageState extends StateMVC {
                 },
                 icon: const Icon(Icons.filter_alt_rounded)) : const SizedBox.shrink();
           },
-        ),
+        ),*/
       ),
       body: widgetOptions.elementAt(_selectedIndex),
       bottomNavigationBar:_bottomNavigation(),
@@ -88,9 +88,20 @@ class _MyHomePageState extends StateMVC {
       builder: (context,filter,child) {
         List<Marker> _markers = [];
         filter.etiquetas.forEach((element) {
-          if(element.getMarkers().isNotEmpty){
-               var items = element.getMarkers();
-               _markers.addAll(items);
+               if(element.images!= null) {
+                 element.images!.forEach((image) {
+                   _markers!.add(Marker(
+                       markerId: MarkerId(image.id),
+                       position: LatLng(image.latitude, image.longitude),
+                       icon: BitmapDescriptor.defaultMarkerWithHue(element.color!.hueColor),
+                       onTap: (){
+                         Navigator.push(
+                           context,
+                           MaterialPageRoute(builder: (context) => image.image),
+                         );
+                       }
+                   ));
+                 });
           }
         });
         return Container(
@@ -106,6 +117,7 @@ class _MyHomePageState extends StateMVC {
                     ),
                     //circles: _con.circles.toSet(),
                     markers:_markers.toSet(),
+
                     //myLocationButtonEnabled: true,
                     myLocationEnabled: true,
 
@@ -167,6 +179,7 @@ class _MyHomePageState extends StateMVC {
         );
       },
       elevation: 8,
+      heroTag:'filter' ,
       child: const Icon(Icons.filter_alt_rounded),)
         :const SizedBox.shrink();
   }
@@ -179,6 +192,7 @@ class _MyHomePageState extends StateMVC {
           MaterialPageRoute(builder: (context) => const EtiquetaForm()),
         ): _con.getLocation().then((value) => print(value.longitude));},
       elevation: 8,
+      heroTag: 'add',
       child: const Icon(Icons.add),
     );
   }
