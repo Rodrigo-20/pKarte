@@ -1,8 +1,12 @@
+import 'dart:io';
+import 'package:exif/exif.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:location/location.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
+import 'package:pkarte/src/models/custom_image.dart';
 import '../../managers/data_manager.dart';
 import '../../models/etiqueta.dart';
 
@@ -30,6 +34,7 @@ class HomeController extends ControllerMVC{
   late LocationData locationData;
   late Location location;
   late GoogleMapController mapController;
+  ImagePicker picker = ImagePicker();
 
 
   void onMapCreated(GoogleMapController controller) {
@@ -76,6 +81,44 @@ class HomeController extends ControllerMVC{
   Future<LocationData> getLocation () async{
       LocationData data =await location.getLocation();
       return data;
+  }
+
+  Future<Etiqueta?> getFromCamera() async {
+    CustomImage customImage;
+    XFile? pickedImage = await picker.pickImage( source: ImageSource.camera,
+      maxWidth: 1800,
+      maxHeight: 1800,);
+    LocationData locData = await getLocation();
+    if (pickedImage != null) {
+      File imageFile = File(pickedImage.path);
+      final bytes = await imageFile.readAsBytesSync();
+      final data = await readExifFromBytes(bytes);
+      data.entries.forEach((element) {
+        if(element.key.endsWith('Latitude')){
+          print( fractionToDouble(element.value.values.toList()));
+          print(element.value.tagType);
+        }
+        if(element.key.endsWith('Longitude')){
+          print( fractionToDouble(element.value.values.toList()));
+        }
+      });
+      for (var entry in data.entries) {
+        print("${entry.key}: ${entry.value}");
+      }
+      return Etiqueta(images: [CustomImage(image: Image.file(imageFile),longitude: locData.longitude!,latitude: locData.latitude!,id: '${locData.latitude.toString()}')], name: 'foto Nueva');
+
+
+    }
+    else { print('something went wrong'); return null;}
+  }
+
+  double fractionToDouble(List<dynamic> coord){
+    double doubleCordinate;
+    Ratio grades = coord[0];
+    Ratio mins = coord[1];
+    Ratio secs = coord[2];
+    doubleCordinate = grades.toDouble() + mins.toDouble()/60 + secs.toDouble()/3600;
+    return doubleCordinate;
   }
 
 

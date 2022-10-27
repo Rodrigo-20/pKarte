@@ -4,6 +4,7 @@ import 'package:mvc_pattern/mvc_pattern.dart';
 import 'package:pkarte/src/models/palette_enum.dart';
 import 'package:pkarte/src/ui/screens_controllers/new_etiqueta_form_controller.dart';
 import '../components/color_selector.dart';
+import '../components/custom_button.dart';
 
 class EtiquetaForm extends StatefulWidget {
   const EtiquetaForm({Key? key}) : super(key: key);
@@ -46,6 +47,7 @@ class _EtiquetaFormState extends StateMVC {
         child: Form(
           child: Column(
             children: [
+              SizedBox(height: 50,),
               TextField(
                 controller: _con.nameController,
                 decoration:const InputDecoration(
@@ -69,11 +71,15 @@ class _EtiquetaFormState extends StateMVC {
                 ],
               ),
               const SizedBox(height: 20,),
-              ElevatedButton(
-                  onPressed:(){
+              CustomButton(
+                backgroundColor: Colors.teal,
+                textStyle: TextStyle(letterSpacing: 3),
+                padding: EdgeInsets.symmetric(vertical: 10,horizontal: 30),
+                text: 'Guardar',
+                  onTap:(){
                     _con.addEtiqueta();
                     Navigator.pop(context);},
-                  child:const Text('Guardar')),
+                  ),
             ],
           ),
         ),

@@ -50,16 +50,6 @@ class _MyHomePageState extends StateMVC {
     return Scaffold(
       appBar: AppBar(
         title: const Text('pKarte'),
-        /*leading: Builder(
-          builder: (BuildContext context) {
-            return _selectedIndex == 0
-                ? IconButton(
-                onPressed: () {
-                  Scaffold.of(context).openDrawer();
-                },
-                icon: const Icon(Icons.filter_alt_rounded)) : const SizedBox.shrink();
-          },
-        ),*/
       ),
       body: widgetOptions.elementAt(_selectedIndex),
       bottomNavigationBar:_bottomNavigation(),
@@ -73,7 +63,7 @@ class _MyHomePageState extends StateMVC {
       child: ListView.builder(
         itemBuilder: (context, index) {
           return ListTile(
-            leading: Container(width: 40, height: 40, color: _con.etiquetas[index].color!.color,),
+            leading: Icon(Icons.location_on_outlined, color: _con.etiquetas[index].color!.color,size: 30,),
             title: Text(_con.etiquetas[index].name!),
             trailing: const Icon(Icons.delete),
             enabled: true,
@@ -185,12 +175,13 @@ class _MyHomePageState extends StateMVC {
   }
 
   _addButton(){
+    var filter = context.watch<FilterModel>();
     return FloatingActionButton(
       onPressed:(){
         _selectedIndex == 1 ? Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const EtiquetaForm()),
-        ): _con.getLocation().then((value) => print(value.longitude));},
+        ): _con.getFromCamera().then((value) => filter.add(value!));},
       elevation: 8,
       heroTag: 'add',
       child: const Icon(Icons.add),

@@ -133,7 +133,7 @@ class _FilterComponentState extends State<FilterComponent> {
                   radius: 16,
                   backgroundColor: item.color!.color,
                   child: const Icon(
-                    Icons.ac_unit,
+                    Icons.location_on,
                     size: 23,
                     color: Colors.white,
                   ),

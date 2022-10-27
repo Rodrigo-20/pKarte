@@ -24,7 +24,5 @@ class PaletteColor {
   static ColorItem rose = ColorItem(color: const Color(0xFFDA8695), hueColor:BitmapDescriptor.hueRose);
   static ColorItem magenta = ColorItem(color: const Color(0xFFF50087), hueColor:BitmapDescriptor.hueMagenta);
 
-  static List<Color> brilloso = [Colors.redAccent,Colors.lightBlue,Color(0xb00f2c20),Color(0xff269612),Color(0xfd0fd096),Color(0xb00f2c20),Colors.redAccent,Colors.lightBlue,Color(0xb00f2c20),Colors.limeAccent];
-  static List<Color> opaco = [Colors.lightGreen,Color(0xfd0fd096),Color(0xb00f2c20),Colors.orangeAccent,Colors.brown,Colors.indigo,Colors.lightGreen,Color(0xfd0fd096),Color(0xb00f2c20),Colors.orangeAccent,Colors.brown,Colors.indigo];
 
 }
