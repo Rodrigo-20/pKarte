@@ -4,7 +4,7 @@ import 'package:location/location.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
 import 'package:pkarte/src/ui/screens/new_etiqueta_form.dart';
 import 'package:provider/provider.dart';
-import '../../models/filtro.dart';
+import '../../models/filter.dart';
 import '../components/filter_component.dart';
 import '../screens_controllers/home_controller.dart';
 
@@ -22,10 +22,8 @@ class _MyHomePageState extends StateMVC {
     _con = HomeController.con;
   }
   late HomeController _con;
-  LatLng center = const LatLng(45.521563, -122.677433);
   int _selectedIndex = 0;
-  double offset = 0.0;
-  static const TextStyle optionStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
+  bool isSecondVisible = false;
 
   @override
   void initState() {
@@ -41,10 +39,16 @@ class _MyHomePageState extends StateMVC {
     });
   }
 
+  void showSecond(){
+    setState(() {
+      isSecondVisible = !isSecondVisible;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     List<Widget> widgetOptions = <Widget>[
-      _map(),
+      //_map(),
       _etiquetas(),
     ];
     return Scaffold(
@@ -100,17 +104,12 @@ class _MyHomePageState extends StateMVC {
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   return GoogleMap(
+                    markers:_markers.toSet(),
+                    myLocationEnabled: true,
                     initialCameraPosition: CameraPosition(
-                      target: LatLng((snapshot.data as LocationData).latitude!,
-                          (snapshot.data as LocationData).longitude!),
+                      target: LatLng((snapshot.data as LocationData).latitude!, (snapshot.data as LocationData).longitude!),
                       zoom: 14.5,
                     ),
-                    //circles: _con.circles.toSet(),
-                    markers:_markers.toSet(),
-
-                    //myLocationButtonEnabled: true,
-                    myLocationEnabled: true,
-
                   );
                 }
                 else {
@@ -158,22 +157,61 @@ class _MyHomePageState extends StateMVC {
   }
 
   _filterButton(){
-    return _selectedIndex == 0
-        ? FloatingActionButton(
-      onPressed: (){
-        showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return
-                FilterComponent(color: Colors.teal.shade400, items: _con.etiquetas, onTap: (lista){print(lista);},); }
-        );
-      },
-      elevation: 8,
-      heroTag:'filter' ,
-      child: const Icon(Icons.filter_alt_rounded),)
-        :const SizedBox.shrink();
+    return _selectedIndex == 0 ?
+    FloatingActionButton(
+          elevation: 8,
+          heroTag:'filter' ,
+          child: const Icon(Icons.filter_alt_rounded),
+          onPressed: (){
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return
+                  FilterComponent(color: Colors.teal.shade400, items: _con.etiquetas, onTap: (lista){print(lista);},); }
+              );
+            },
+         )
+    :const SizedBox.shrink();
   }
 
+  _addButton(){
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      width: isSecondVisible ? 140 : 70,
+      height: 70,
+      padding: const EdgeInsets.all(10),
+      transform: isSecondVisible ? Matrix4.translationValues(-35, 0 , 0) : Matrix4.translationValues(0, 0, 0),
+      decoration: BoxDecoration( color: Colors.black26,borderRadius:BorderRadius.circular(50)),
+      child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [_first(Icons.camera_alt_outlined), isSecondVisible ? _second(Icons.file_copy_outlined): SizedBox.shrink()]),
+    );
+
+}
+
+_first(IconData icon ){
+  var filter = context.watch<FilterModel>();
+    return Expanded(
+        flex: 1,
+        child: FloatingActionButton(
+          onPressed: showSecond,
+          child: Icon(isSecondVisible ? icon: Icons.add ,color: Colors.white,),
+        ));
+}
+
+  _second(IconData icon ){
+    var filter = context.watch<FilterModel>();
+    return Expanded(
+        flex: 1,
+        child: FloatingActionButton(
+          onPressed: showSecond,
+          child: Icon(icon,color: Colors.white,),
+        ));
+  }
+
+  /*
   _addButton(){
     var filter = context.watch<FilterModel>();
     return FloatingActionButton(
@@ -187,5 +225,6 @@ class _MyHomePageState extends StateMVC {
       child: const Icon(Icons.add),
     );
   }
+   */
 
 }

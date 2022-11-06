@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
 
-import 'etiqueta.dart';
+import 'label.dart';
 
 class FilterModel extends ChangeNotifier{
-  final  List<Etiqueta> _etiquetas = [];
+  final  List<Label> _etiquetas = [];
 
-  List<Etiqueta> get etiquetas => _etiquetas;
+  List<Label> get etiquetas => _etiquetas;
 
-  void add(Etiqueta etiqueta) {
+  void add(Label etiqueta) {
     _etiquetas.add(etiqueta);
     notifyListeners();
   }
 
-  void remove(Etiqueta etiqueta){
+  void remove(Label etiqueta){
     _etiquetas.remove(etiqueta);
     notifyListeners();
   }
 
-  bool contains(Etiqueta etiqueta){
+  bool contains(Label etiqueta){
     return _etiquetas.contains(etiqueta);
   }
 }

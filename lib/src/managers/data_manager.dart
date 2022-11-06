@@ -1,7 +1,7 @@
 import 'package:mvc_pattern/mvc_pattern.dart';
 import 'package:pkarte/src/data_access/dummy.dart';
 import 'package:pkarte/src/interfaces/data_access.dart';
-import '../models/etiqueta.dart';
+import '../models/label.dart';
 
 class DataManager extends ControllerMVC{
    factory DataManager() {
@@ -16,19 +16,19 @@ class DataManager extends ControllerMVC{
 
   final IDataAccess dataAccess;
 
-  List<Etiqueta> getEtiquetas(){
+  List<Label> getEtiquetas(){
     return dataAccess.getEtiquetas();
   }
 
-  void saveEtiquetas(List<Etiqueta> etiquetas){
+  void saveEtiquetas(List<Label> etiquetas){
     dataAccess.saveEtiquetas(etiquetas);
   }
 
-  void addEtiqueta(Etiqueta etiqueta){
+  void addEtiqueta(Label etiqueta){
     dataAccess.addEtiqueta(etiqueta);
   }
 
-  void removeEtiqueta(Etiqueta etiqueta){
+  void removeEtiqueta(Label etiqueta){
     dataAccess.removeEtiqueta(etiqueta);
   }
 }

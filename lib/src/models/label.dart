@@ -6,7 +6,7 @@ import 'package:pkarte/src/models/palette_enum.dart';
 
 import 'color_item.dart';
 
-class Etiqueta{
+class Label{
   String? name;
   String? description;
   ColorItem? color;
@@ -19,12 +19,12 @@ class Etiqueta{
   void _contar(){
     _cantidad++;
   }
-  Etiqueta({required this.name,this.description, this.color, this.isActive=false, this.locations, this.images}) {
+  Label({required this.name,this.description, this.color, this.isActive=false, this.locations, this.images}) {
     color ??= PaletteColor.blue;
     _contar();
   }
 
-  Etiqueta.fromJson(Map<String,dynamic> json)
+  Label.fromJson(Map<String,dynamic> json)
       :name = json['name'],
         description = json['description']?? '',
         color = json['color'],

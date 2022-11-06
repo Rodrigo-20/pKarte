@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pkarte/src/models/filtro.dart';
+import 'package:pkarte/src/models/filter.dart';
 import 'package:pkarte/src/ui/screens/home.dart';
 import 'package:provider/provider.dart';
 

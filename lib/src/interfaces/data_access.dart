@@ -1,10 +1,10 @@
-import '../models/etiqueta.dart';
+import '../models/label.dart';
 
 abstract class IDataAccess{
 
- void saveEtiquetas(List<Etiqueta> etiquetas);
- void addEtiqueta(Etiqueta data);
- List<Etiqueta> getEtiquetas();
- void removeEtiqueta(Etiqueta etiqueta);
+ void saveEtiquetas(List<Label> etiquetas);
+ void addEtiqueta(Label data);
+ List<Label> getEtiquetas();
+ void removeEtiqueta(Label etiqueta);
 
 }

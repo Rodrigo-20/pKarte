@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
 import 'package:pkarte/src/managers/data_manager.dart';
 import 'package:pkarte/src/models/color_item.dart';
-import '../../models/etiqueta.dart';
+import '../../models/label.dart';
 
 class EtiquetaFormController extends ControllerMVC {
 
@@ -33,7 +33,7 @@ class EtiquetaFormController extends ControllerMVC {
 
   void addEtiqueta( ) {
     if(nameController.text!= ""){
-    Etiqueta etiqueta = Etiqueta(name: nameController.text, description: descriptionController.text,color: currentColor);
+    Label etiqueta = Label(name: nameController.text, description: descriptionController.text,color: currentColor);
 
     dataBase.addEtiqueta(etiqueta);
     nameController.text = "";

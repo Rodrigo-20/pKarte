@@ -8,7 +8,7 @@ import 'package:location/location.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
 import 'package:pkarte/src/models/custom_image.dart';
 import '../../managers/data_manager.dart';
-import '../../models/etiqueta.dart';
+import '../../models/label.dart';
 
 
 class HomeController extends ControllerMVC{
@@ -24,8 +24,8 @@ class HomeController extends ControllerMVC{
 
   late DataManager _dataManager ;
   static HomeController get con => _instance!;
-  List<Etiqueta> _etiquetas = [];
-  List<Etiqueta> get etiquetas => _etiquetas;
+  List<Label> _etiquetas = [];
+  List<Label> get etiquetas => _etiquetas;
   List pages = [];
   Color? currentColor;
   late List<Circle> circles = [];
@@ -49,7 +49,7 @@ class HomeController extends ControllerMVC{
   }
 
 
-  void toggle(Etiqueta item,bool value) {
+  void toggle(Label item,bool value) {
     setState(() {
       item.changeState(value);
       });
@@ -83,12 +83,11 @@ class HomeController extends ControllerMVC{
       return data;
   }
 
-  Future<Etiqueta?> getFromCamera() async {
+  Future<Label?> getFromCamera() async {
     CustomImage customImage;
-    XFile? pickedImage = await picker.pickImage( source: ImageSource.camera,
-      maxWidth: 1800,
-      maxHeight: 1800,);
+    XFile? pickedImage = await picker.pickImage( source: ImageSource.camera, maxWidth: 1800, maxHeight: 1800,);
     LocationData locData = await getLocation();
+
     if (pickedImage != null) {
       File imageFile = File(pickedImage.path);
       final bytes = await imageFile.readAsBytesSync();
@@ -105,9 +104,33 @@ class HomeController extends ControllerMVC{
       for (var entry in data.entries) {
         print("${entry.key}: ${entry.value}");
       }
-      return Etiqueta(images: [CustomImage(image: Image.file(imageFile),longitude: locData.longitude!,latitude: locData.latitude!,id: '${locData.latitude.toString()}')], name: 'foto Nueva');
+      return Label(images: [CustomImage(image: Image.file(imageFile),longitude: locData.longitude!,latitude: locData.latitude!,id: '${locData.latitude.toString()}')], name: 'foto Nueva');
+    }
+    else { print('something went wrong'); return null;}
+  }
 
+  Future<Label?> getFromGallery() async {
+    CustomImage customImage;
+    XFile? pickedImage = await picker.pickImage( source: ImageSource.camera, maxWidth: 1800, maxHeight: 1800,);
+    LocationData locData = await getLocation();
 
+    if (pickedImage != null) {
+      File imageFile = File(pickedImage.path);
+      final bytes = await imageFile.readAsBytesSync();
+      final data = await readExifFromBytes(bytes);
+      data.entries.forEach((element) {
+        if(element.key.endsWith('Latitude')){
+          print( fractionToDouble(element.value.values.toList()));
+          print(element.value.tagType);
+        }
+        if(element.key.endsWith('Longitude')){
+          print( fractionToDouble(element.value.values.toList()));
+        }
+      });
+      for (var entry in data.entries) {
+        print("${entry.key}: ${entry.value}");
+      }
+      return Label(images: [CustomImage(image: Image.file(imageFile),longitude: locData.longitude!,latitude: locData.latitude!,id: '${locData.latitude.toString()}')], name: 'foto Nueva');
     }
     else { print('something went wrong'); return null;}
   }

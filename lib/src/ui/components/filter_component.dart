@@ -1,15 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:pkarte/src/models/etiqueta.dart';
+import 'package:pkarte/src/models/label.dart';
 import 'package:pkarte/src/ui/components/custom_button.dart';
 import 'package:provider/provider.dart';
 
-import '../../models/filtro.dart';
+import '../../models/filter.dart';
 
 
 class FilterComponent extends StatefulWidget {
   final Color color;
-  final List<Etiqueta>? items;
+  final List<Label>? items;
   final Function(List<int>)? onTap;
   const FilterComponent(
       {Key? key, this.color = Colors.cyan, this.items, this.onTap})
@@ -115,7 +115,7 @@ class _FilterComponentState extends State<FilterComponent> {
         ));
   }
 
-  _cellFilter(Etiqueta item, StateSetter setState,BuildContext context) {
+  _cellFilter(Label item, StateSetter setState,BuildContext context) {
     var filter = context.watch<FilterModel>();
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 20),

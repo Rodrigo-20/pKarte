@@ -2,13 +2,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../models/etiqueta.dart';
-import '../../models/filtro.dart';
+import '../../models/label.dart';
+import '../../models/filter.dart';
 
 class CustomColorList extends StatelessWidget {
-  List<Etiqueta>? list;
+  List<Label>? list;
   //final Function(int,bool) toggle;
-  final Function(Etiqueta,bool) toggle;
+  final Function(Label,bool) toggle;
   CustomColorList({Key? key, required this.list, required this.toggle}) : super(key: key);
 
 @override
@@ -33,7 +33,7 @@ class CustomColorList extends StatelessWidget {
     );
   }
 
-  _cell(Etiqueta item, int index,BuildContext context){
+  _cell(Label item, int index,BuildContext context){
     var filter = context.watch<FilterModel>();
     return (
         SwitchListTile(
