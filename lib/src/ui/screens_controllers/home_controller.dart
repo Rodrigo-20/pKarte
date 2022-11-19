@@ -90,20 +90,7 @@ class HomeController extends ControllerMVC{
 
     if (pickedImage != null) {
       File imageFile = File(pickedImage.path);
-      final bytes = await imageFile.readAsBytesSync();
-      final data = await readExifFromBytes(bytes);
-      data.entries.forEach((element) {
-        if(element.key.endsWith('Latitude')){
-          print( fractionToDouble(element.value.values.toList()));
-          print(element.value.tagType);
-        }
-        if(element.key.endsWith('Longitude')){
-          print( fractionToDouble(element.value.values.toList()));
-        }
-      });
-      for (var entry in data.entries) {
-        print("${entry.key}: ${entry.value}");
-      }
+
       return Label(images: [CustomImage(image: Image.file(imageFile),longitude: locData.longitude!,latitude: locData.latitude!,id: '${locData.latitude.toString()}')], name: 'foto Nueva');
     }
     else { print('something went wrong'); return null;}
@@ -111,8 +98,10 @@ class HomeController extends ControllerMVC{
 
   Future<Label?> getFromGallery() async {
     CustomImage customImage;
-    XFile? pickedImage = await picker.pickImage( source: ImageSource.camera, maxWidth: 1800, maxHeight: 1800,);
-    LocationData locData = await getLocation();
+    double? latitude;
+    double? longitude;
+    XFile? pickedImage = await picker.pickImage( source: ImageSource.gallery, maxWidth: 300, maxHeight: 300,);
+    //LocationData locData = await getLocation();
 
     if (pickedImage != null) {
       File imageFile = File(pickedImage.path);
@@ -120,17 +109,17 @@ class HomeController extends ControllerMVC{
       final data = await readExifFromBytes(bytes);
       data.entries.forEach((element) {
         if(element.key.endsWith('Latitude')){
-          print( fractionToDouble(element.value.values.toList()));
+          latitude = fractionToDouble(element.value.values.toList());
           print(element.value.tagType);
         }
         if(element.key.endsWith('Longitude')){
-          print( fractionToDouble(element.value.values.toList()));
+          longitude = fractionToDouble(element.value.values.toList());
         }
       });
       for (var entry in data.entries) {
         print("${entry.key}: ${entry.value}");
       }
-      return Label(images: [CustomImage(image: Image.file(imageFile),longitude: locData.longitude!,latitude: locData.latitude!,id: '${locData.latitude.toString()}')], name: 'foto Nueva');
+      return Label(images: [CustomImage(image: Image.file(imageFile),longitude: longitude!,latitude: latitude!,id: '${latitude.toString()}')], name: 'foto Nueva');
     }
     else { print('something went wrong'); return null;}
   }
@@ -140,7 +129,7 @@ class HomeController extends ControllerMVC{
     Ratio grades = coord[0];
     Ratio mins = coord[1];
     Ratio secs = coord[2];
-    doubleCordinate = grades.toDouble() + mins.toDouble()/60 + secs.toDouble()/3600;
+    doubleCordinate = -1*(grades.toDouble() + mins.toDouble()/60 + secs.toDouble()/3600);
     return doubleCordinate;
   }
 

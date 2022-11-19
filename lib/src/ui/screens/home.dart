@@ -48,7 +48,7 @@ class _MyHomePageState extends StateMVC {
   @override
   Widget build(BuildContext context) {
     List<Widget> widgetOptions = <Widget>[
-      //_map(),
+      _map(),
       _etiquetas(),
     ];
     return Scaffold(
@@ -130,7 +130,7 @@ class _MyHomePageState extends StateMVC {
           children: [
             _filterButton(),
             const SizedBox(height: 20,),
-            _addButton(),
+            _actionButtons(),
           ],
         )
     );
@@ -174,41 +174,54 @@ class _MyHomePageState extends StateMVC {
     :const SizedBox.shrink();
   }
 
-  _addButton(){
-
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      width: isSecondVisible ? 140 : 70,
-      height: 70,
-      padding: const EdgeInsets.all(10),
-      transform: isSecondVisible ? Matrix4.translationValues(-35, 0 , 0) : Matrix4.translationValues(0, 0, 0),
-      decoration: BoxDecoration( color: Colors.black26,borderRadius:BorderRadius.circular(50)),
-      child: Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [_first(Icons.camera_alt_outlined), isSecondVisible ? _second(Icons.file_copy_outlined): SizedBox.shrink()]),
+  _actionButtons(){
+    return  _selectedIndex == 0 ?
+      AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: isSecondVisible ? 140 : 70,
+        height: 70,
+        padding: const EdgeInsets.all(10),
+        transform: isSecondVisible ? Matrix4.translationValues(-35, 0 , 0) : Matrix4.translationValues(0, 0, 0),
+        decoration: BoxDecoration( border: Border.all(color: Colors.teal, width: 1), borderRadius:BorderRadius.circular(50)),
+        child: Row( mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [_first(Icons.camera_alt_outlined), isSecondVisible ? _second(Icons.file_copy_outlined) : const SizedBox.shrink()]))
+     : FloatingActionButton(
+        onPressed:() {
+          Navigator.push(context,MaterialPageRoute(builder: (context) => const EtiquetaForm()));
+        },
+        child: const Icon(Icons.add),
     );
-
-}
-
-_first(IconData icon ){
-  var filter = context.watch<FilterModel>();
-    return Expanded(
-        flex: 1,
-        child: FloatingActionButton(
-          onPressed: showSecond,
-          child: Icon(isSecondVisible ? icon: Icons.add ,color: Colors.white,),
-        ));
-}
+  }
 
   _second(IconData icon ){
+      var filter = context.watch<FilterModel>();
+      return Expanded(
+          flex: 1,
+          child: FloatingActionButton(
+            onPressed:(){
+              _con.getFromGallery().then((value) => filter.add(value!));
+              showSecond();},
+            heroTag: 'addFromGallery',
+            child: Icon(icon,color: Colors.white,),
+          ));
+  }
+
+  _first(IconData icon ){
     var filter = context.watch<FilterModel>();
-    return Expanded(
-        flex: 1,
-        child: FloatingActionButton(
-          onPressed: showSecond,
-          child: Icon(icon,color: Colors.white,),
-        ));
+      return Expanded(
+          flex: 1,
+          child: FloatingActionButton(
+            onPressed:(){
+              if(isSecondVisible) {
+                _con.getFromCamera().then((value) => filter.add(value!));
+                showSecond();
+              }
+              else{showSecond();}
+              },
+            heroTag: 'addFromCamera',
+            child: Icon(isSecondVisible ? icon: Icons.add ,color: Colors.white,),
+          ));
   }
 
   /*

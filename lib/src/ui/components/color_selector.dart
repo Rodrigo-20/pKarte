@@ -1,7 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:pkarte/src/models/palette_enum.dart';
-
 import '../../models/color_item.dart';
 
 
