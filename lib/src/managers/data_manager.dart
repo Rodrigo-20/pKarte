@@ -16,8 +16,8 @@ class DataManager extends ControllerMVC{
 
   final IDataAccess dataAccess;
 
-  List<Label> getEtiquetas(){
-    return dataAccess.getEtiquetas();
+  Future<List<Label>> getEtiquetas()async{
+    return await dataAccess.getEtiquetas();
   }
 
   void saveEtiquetas(List<Label> etiquetas){

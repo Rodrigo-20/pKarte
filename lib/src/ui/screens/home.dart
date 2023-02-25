@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
+import 'package:pkarte/src/ui/components/add_picture_filter.dart';
 import 'package:pkarte/src/ui/screens/new_etiqueta_form.dart';
 import 'package:provider/provider.dart';
 import '../../models/filter.dart';
@@ -30,7 +31,6 @@ class _MyHomePageState extends StateMVC {
     super.initState();
     // TODO: implement initState
     _con.initPage();
-    print('iniciando estado');
   }
 
   void _changeTab(int index){
@@ -130,7 +130,7 @@ class _MyHomePageState extends StateMVC {
           children: [
             _filterButton(),
             const SizedBox(height: 20,),
-            _actionButtons(),
+            _addButton(),
           ],
         )
     );
@@ -174,7 +174,7 @@ class _MyHomePageState extends StateMVC {
     :const SizedBox.shrink();
   }
 
-  _actionButtons(){
+  /*_actionButtons(){
     return  _selectedIndex == 0 ?
       AnimatedContainer(
         duration: const Duration(milliseconds: 200),
@@ -192,6 +192,24 @@ class _MyHomePageState extends StateMVC {
         },
         child: const Icon(Icons.add),
     );
+  }*/
+  _addButton(){
+    return _selectedIndex == 0 ?
+    FloatingActionButton(
+      elevation: 8,
+      heroTag:'filter' ,
+      child: const Icon(Icons.add_circle_outline),
+      onPressed: (){
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return
+                AddPicFilter(color: Colors.teal.shade400, items: _con.etiquetas, onTap: (lista){print(lista);},); }
+        );
+      },
+    )
+        :const SizedBox.shrink();
+
   }
 
   _second(IconData icon ){
@@ -200,6 +218,7 @@ class _MyHomePageState extends StateMVC {
           flex: 1,
           child: FloatingActionButton(
             onPressed:(){
+              //GUARDAR
               _con.getFromGallery().then((value) => filter.add(value!));
               showSecond();},
             heroTag: 'addFromGallery',

@@ -24,6 +24,7 @@ class _EtiquetaFormState extends StateMVC {
   void initState() {
     // TODO: implement initState
     super.initState();
+
     _con.initPage();
   }
   @override
@@ -74,7 +75,7 @@ class _EtiquetaFormState extends StateMVC {
               CustomButton(
                 backgroundColor: Colors.teal,
                 textStyle: TextStyle(letterSpacing: 3),
-                padding: EdgeInsets.symmetric(vertical: 10,horizontal: 30),
+                //padding: EdgeInsets.symmetric(vertical: 10,horizontal: 30),
                 text: 'Guardar',
                   onTap:(){
                     _con.addEtiqueta();

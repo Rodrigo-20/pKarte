@@ -41,11 +41,11 @@ class HomeController extends ControllerMVC{
     mapController = controller;
   }
 
-  void initPage(){
+  void initPage() async{
     DataManager();
     _dataManager = DataManager.data;
-    _etiquetas = _dataManager.getEtiquetas();
-    initLocation().then((value) => print(value));
+    _etiquetas = await _dataManager.getEtiquetas();
+    await initLocation();
   }
 
 

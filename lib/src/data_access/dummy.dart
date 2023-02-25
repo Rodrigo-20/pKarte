@@ -8,19 +8,19 @@ class DummyData implements IDataAccess {
 
   DummyData();
 
-  List<Label> getEtiquetas(){
-    return [
-      Label(name: 'restaurantes',color: PaletteColor.magenta,images:
-      [
-        CustomImage(image: Image.asset('assets/images/dondavid.jpg'), latitude: -24.7854951, longitude:-65.4107569, id:'don david'),
-        CustomImage(image: Image.asset('assets/images/casona.jpg'), latitude: -24.7878246, longitude: -65.4371075, id:'la casona'),
-        CustomImage(image: Image.asset('assets/images/paseo.jpg'), latitude: -24.798289, longitude:-65.4076732, id:'el paseo de la familia'),
-      ], ),
-      Label(name: 'parques', color: PaletteColor.green, images: [
-        CustomImage(image: Image.asset('assets/images/parquesur.jpeg'), latitude: -24.8488434, longitude: -65.4385521, id: 'parque sur')
+  Future<List<Label>> getEtiquetas()async=> Future.delayed(
+     const Duration(seconds: 3),
+  () => [
+    Label(name: 'restaurantes',color: PaletteColor.magenta,images:
+    [
+      CustomImage(image: Image.asset('assets/images/dondavid.jpg'), latitude: -24.7854951, longitude:-65.4107569, id:'don david'),
+      CustomImage(image: Image.asset('assets/images/casona.jpg'), latitude: -24.7878246, longitude: -65.4371075, id:'la casona'),
+      CustomImage(image: Image.asset('assets/images/paseo.jpg'), latitude: -24.798289, longitude:-65.4076732, id:'el paseo de la familia'),
+    ], ),
+    Label(name: 'parques', color: PaletteColor.green, images: [
+      CustomImage(image: Image.asset('assets/images/parquesur.jpeg'), latitude: -24.8488434, longitude: -65.4385521, id: 'parque sur')
     ])
-    ];
-  }
+  ],);
 
 
   void saveEtiquetas(List<Label> etiquetas){

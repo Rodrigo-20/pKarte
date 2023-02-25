@@ -5,21 +5,22 @@ import 'package:pkarte/src/ui/components/custom_button.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/filter.dart';
+import '../screens/new_etiqueta_form.dart';
 
 
-class FilterComponent extends StatefulWidget {
+class AddPicFilter extends StatefulWidget {
   final Color color;
   final List<Label>? items;
   final Function(List<int>)? onTap;
-  const FilterComponent(
+  const AddPicFilter(
       {Key? key, this.color = Colors.cyan, this.items, this.onTap})
       : super(key: key);
 
   @override
-  State<FilterComponent> createState() => _FilterComponentState();
+  State<AddPicFilter> createState() => _AddPicFilterState();
 }
 
-class _FilterComponentState extends State<FilterComponent> {
+class _AddPicFilterState extends State<AddPicFilter> {
   ScrollController scrollController = ScrollController();
   List<int> actives = [];
   void getActiveFilters() {
@@ -47,26 +48,44 @@ class _FilterComponentState extends State<FilterComponent> {
       SizedBox(
         height:450,
         width: 300,
-          child: StatefulBuilder(
-              builder: (BuildContext context, StateSetter setState) {
-            return _listFilter(setState,context);
-          }),
+        child: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              return _listFilter(setState,context);
+            }),
 
       ),
       contentPadding: const EdgeInsets.all(15),
-      actionsAlignment: MainAxisAlignment.center,
+      actionsAlignment: MainAxisAlignment.spaceAround,
+      //actionsAlignment: MainAxisAlignment.center,
+      actionsOverflowDirection: VerticalDirection.up,
       actionsPadding: const EdgeInsets.only(bottom: 25),
+
       actions: [
-        CustomButton(
-          backgroundColor: widget.color,
-          text: 'Aceptar',
-          //padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 10),
-          onTap: () {
-            getActiveFilters();
-            widget.onTap!(actives);
-            Navigator.pop(context);
-          },
-        ),
+        Column(
+          children: [
+            CustomButton(
+              backgroundColor: widget.color,
+              text: 'Tomar Foto',
+              //padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              onTap: () {
+                getActiveFilters();
+                widget.onTap!(actives);
+                Navigator.pop(context);
+              },
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            CustomButton(
+              backgroundColor:widget.color ,
+              text: 'Agregar Filtro',
+
+              onTap:(){
+                Navigator.push(context,MaterialPageRoute(builder: (context) => const EtiquetaForm()));
+              },
+            )
+          ],
+        )
       ],
     );
   }
@@ -85,8 +104,8 @@ class _FilterComponentState extends State<FilterComponent> {
       child: const Padding(
         padding: EdgeInsets.only(bottom: 12.0),
         child: Text(
-          'Filtros',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+          'Etiquetas',
+          style: TextStyle(fontWeight: FontWeight.w400, fontSize: 18, letterSpacing: 1),
         ),
       ),
     );
@@ -105,8 +124,8 @@ class _FilterComponentState extends State<FilterComponent> {
         child: Theme(
           data: ThemeData(
               scrollbarTheme: const ScrollbarThemeData(
-            thickness: MaterialStatePropertyAll(5),
-          )),
+                thickness: MaterialStatePropertyAll(5),
+              )),
           child: ListView.builder(
               controller: scrollController,
               itemBuilder: (context, index) =>
@@ -154,14 +173,14 @@ class _FilterComponentState extends State<FilterComponent> {
                 onChanged: (bool newValue){
                   if(newValue){
                     if(filter.etiquetas.contains(item)==false){
-                    filter.add(item);
+                      filter.add(item);
                     }
                   }
                   else {
-                  filter.remove(item);
-                    }
+                    filter.remove(item);
                   }
-                ),
+                }
+            ),
           ],
         ),
       ),

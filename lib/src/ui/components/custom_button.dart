@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 class CustomButton extends StatelessWidget {
   String? text;
+  double? width;
   Color textColor;
   IconData? iconData;
   String? iconPath;
@@ -11,13 +12,14 @@ class CustomButton extends StatelessWidget {
   Color? borderColor;
   Function? onTap;
   bool isEnabled;
-  EdgeInsets padding;
+  //EdgeInsets padding;
   TextStyle? textStyle;
   ButtonStyle? buttonStyle;
 
   CustomButton(
       {Key? key,
         this.text,
+        this.width,
         this.iconData,
         this.iconPath,
         this.iconColor,
@@ -26,7 +28,7 @@ class CustomButton extends StatelessWidget {
         this.onTap,
         this.isEnabled = true,
         this.textColor = Colors.white,
-        this.padding = const EdgeInsets.only(left: 8,right:8, top: 6, bottom: 6),
+        //this.padding = const EdgeInsets.only(left: 8,right:8, top: 6, bottom: 6),
         this.textStyle}) : super(key: key) {
     iconColor ??= textColor;
     borderColor ??= backgroundColor;
@@ -38,6 +40,7 @@ class CustomButton extends StatelessWidget {
       textStyle =  TextStyle(color: textStyle!.color ?? textColor , fontWeight:textStyle!.fontWeight,fontStyle:textStyle!.fontStyle,letterSpacing: textStyle!.letterSpacing);
     }
     buttonStyle = ElevatedButton.styleFrom(
+      fixedSize: Size(width?? 160, 36),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       elevation: 8,
       side: BorderSide(color: borderColor!, width: 2),
@@ -53,7 +56,7 @@ class CustomButton extends StatelessWidget {
         onPressed: isEnabled ? onTap== null? ()=>{} : ()=>onTap!() : null,
         style: buttonStyle,
         child: Padding(
-          padding: padding,
+          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
