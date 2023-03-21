@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:exif/exif.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import 'package:mvc_pattern/mvc_pattern.dart';
 import 'package:pkarte/src/models/custom_image.dart';
 import '../../managers/data_manager.dart';
 import '../../models/label.dart';
+import '../../models/palette_enum.dart';
 
 
 class HomeController extends ControllerMVC{
@@ -44,7 +46,7 @@ class HomeController extends ControllerMVC{
   void initPage() async{
     DataManager();
     _dataManager = DataManager.data;
-    _etiquetas = await _dataManager.getEtiquetas();
+    _etiquetas = await _dataManager.getLabels();
     await initLocation();
   }
 
@@ -53,6 +55,10 @@ class HomeController extends ControllerMVC{
     setState(() {
       item.changeState(value);
       });
+  }
+
+  void updateEtiquetas() async{
+    _etiquetas = await _dataManager.getLabels();
   }
 
   Future<LocationData> initLocation() async{
@@ -83,30 +89,28 @@ class HomeController extends ControllerMVC{
       return data;
   }
 
-  Future<Label?> getFromCamera() async {
-    CustomImage customImage;
+  Future<Uint8List?> getFromCamera() async {
+    Uint8List bytes;
     XFile? pickedImage = await picker.pickImage( source: ImageSource.camera, maxWidth: 1800, maxHeight: 1800,);
-    LocationData locData = await getLocation();
-
     if (pickedImage != null) {
       File imageFile = File(pickedImage.path);
-
-      return Label(images: [CustomImage(image: Image.file(imageFile),longitude: locData.longitude!,latitude: locData.latitude!,id: '${locData.latitude.toString()}')], name: 'foto Nueva');
+      bytes = await imageFile.readAsBytes();
+      return bytes;
+      //return Label(images: [CustomImage(image: Image.file(imageFile),longitude: locData.longitude!,latitude: locData.latitude!,id: '${locData.latitude.toString()}')], name: 'foto Nueva');
     }
     else { print('something went wrong'); return null;}
   }
 
-  Future<Label?> getFromGallery() async {
-    CustomImage customImage;
-    double? latitude;
-    double? longitude;
+  Future<Uint8List?> getFromGallery() async {
+
     XFile? pickedImage = await picker.pickImage( source: ImageSource.gallery, maxWidth: 300, maxHeight: 300,);
     //LocationData locData = await getLocation();
 
     if (pickedImage != null) {
       File imageFile = File(pickedImage.path);
       final bytes = await imageFile.readAsBytesSync();
-      final data = await readExifFromBytes(bytes);
+      return bytes;
+      /*final data = await readExifFromBytes(bytes);
       data.entries.forEach((element) {
         if(element.key.endsWith('Latitude')){
           latitude = fractionToDouble(element.value.values.toList());
@@ -118,8 +122,8 @@ class HomeController extends ControllerMVC{
       });
       for (var entry in data.entries) {
         print("${entry.key}: ${entry.value}");
-      }
-      return Label(images: [CustomImage(image: Image.file(imageFile),longitude: longitude!,latitude: latitude!,id: '${latitude.toString()}')], name: 'foto Nueva');
+      }*/
+      //return Label(images: [CustomImage(image: Image.file(imageFile),longitude: longitude!,latitude: latitude!,id: '${latitude.toString()}')], name: 'foto Nueva');
     }
     else { print('something went wrong'); return null;}
   }
@@ -133,10 +137,32 @@ class HomeController extends ControllerMVC{
     return doubleCordinate;
   }
 
+  void addImage(CustomImage image,List<int> labels){
+    _dataManager.addImage(image, labels);
+  }
 
+  Future<List<CustomImage>> getImages(int labelId) async{
+    List<CustomImage> images = await _dataManager.getImages(labelId);
+    return images;
+  }
   void selectColor(Color color){
     setState(() {
       currentColor = color;
+    });
+  }
+
+  getColorByName(String colorName){
+    PaletteColor.hueColors.map((element) {
+      if(element.name == colorName){
+        return element.color;
+      }
+    });
+  }
+  getHueColorByName(String colorName){
+    PaletteColor.hueColors.map((element) {
+      if(element.name == colorName){
+        return element.hueColor;
+      }
     });
   }
 }

@@ -48,7 +48,7 @@ class _EtiquetaFormState extends StateMVC {
         child: Form(
           child: Column(
             children: [
-              SizedBox(height: 50,),
+              const SizedBox(height: 50,),
               TextField(
                 controller: _con.nameController,
                 decoration:const InputDecoration(
@@ -74,7 +74,7 @@ class _EtiquetaFormState extends StateMVC {
               const SizedBox(height: 20,),
               CustomButton(
                 backgroundColor: Colors.teal,
-                textStyle: TextStyle(letterSpacing: 3),
+                textStyle: const TextStyle(letterSpacing: 3),
                 //padding: EdgeInsets.symmetric(vertical: 10,horizontal: 30),
                 text: 'Guardar',
                   onTap:(){

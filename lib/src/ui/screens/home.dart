@@ -1,13 +1,19 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
+import 'package:pkarte/src/models/palette_enum.dart';
 import 'package:pkarte/src/ui/components/add_picture_filter.dart';
-import 'package:pkarte/src/ui/screens/new_etiqueta_form.dart';
+
 import 'package:provider/provider.dart';
+import '../../models/custom_image.dart';
 import '../../models/filter.dart';
+
 import '../components/filter_component.dart';
 import '../screens_controllers/home_controller.dart';
+import 'package:flutter/cupertino.dart';
 
 class MyHomePage extends StatefulWidget {
   final String title;
@@ -67,8 +73,8 @@ class _MyHomePageState extends StateMVC {
       child: ListView.builder(
         itemBuilder: (context, index) {
           return ListTile(
-            leading: Icon(Icons.location_on_outlined, color: _con.etiquetas[index].color!.color,size: 30,),
-            title: Text(_con.etiquetas[index].name!),
+            leading: Icon(Icons.location_on_outlined, color:_getColorByName(_con.etiquetas[index].color),size: 30,),
+            title: Text(_con.etiquetas[index].name),
             trailing: const Icon(Icons.delete),
             enabled: true,
           );},
@@ -80,23 +86,43 @@ class _MyHomePageState extends StateMVC {
   _map() {
     return Consumer<FilterModel>(
       builder: (context,filter,child) {
+        print('algo esta pasando');
+
+        filter.labels.length> 0 ? print(filter.labels.first.id) : print('no hay nada');
         List<Marker> _markers = [];
-        filter.etiquetas.forEach((element) {
+        filter.labels.forEach((element) async {
+          List<CustomImage> images = await _con.getImages(element.id!);
+          images.forEach((image) {
+            print('id :');
+            print(image.id);
+            _markers.add(Marker(
+                markerId: MarkerId(image.id.toString()),
+                position: LatLng(image.latitude, image.longitude),
+                icon: BitmapDescriptor.defaultMarkerWithHue(_getHueColorByName(element.color)),
+                onTap: (){
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => Image.memory(image.imageData)),
+                  );
+                }
+            ));
+          });
+          /*
                if(element.images!= null) {
                  element.images!.forEach((image) {
                    _markers!.add(Marker(
-                       markerId: MarkerId(image.id),
+                       markerId: MarkerId(image.id.toString()),
                        position: LatLng(image.latitude, image.longitude),
-                       icon: BitmapDescriptor.defaultMarkerWithHue(element.color!.hueColor),
+                       icon: BitmapDescriptor.defaultMarkerWithHue(_getHueColorByName(element.color!)),
                        onTap: (){
                          Navigator.push(
                            context,
-                           MaterialPageRoute(builder: (context) => image.image),
+                           MaterialPageRoute(builder: (context) => Image.memory(image.imageData)),
                          );
                        }
                    ));
                  });
-          }
+          }*/
         });
         return Container(
           child: FutureBuilder(
@@ -174,25 +200,6 @@ class _MyHomePageState extends StateMVC {
     :const SizedBox.shrink();
   }
 
-  /*_actionButtons(){
-    return  _selectedIndex == 0 ?
-      AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        width: isSecondVisible ? 140 : 70,
-        height: 70,
-        padding: const EdgeInsets.all(10),
-        transform: isSecondVisible ? Matrix4.translationValues(-35, 0 , 0) : Matrix4.translationValues(0, 0, 0),
-        decoration: BoxDecoration( border: Border.all(color: Colors.teal, width: 1), borderRadius:BorderRadius.circular(50)),
-        child: Row( mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [_first(Icons.camera_alt_outlined), isSecondVisible ? _second(Icons.file_copy_outlined) : const SizedBox.shrink()]))
-     : FloatingActionButton(
-        onPressed:() {
-          Navigator.push(context,MaterialPageRoute(builder: (context) => const EtiquetaForm()));
-        },
-        child: const Icon(Icons.add),
-    );
-  }*/
   _addButton(){
     return _selectedIndex == 0 ?
     FloatingActionButton(
@@ -204,7 +211,21 @@ class _MyHomePageState extends StateMVC {
             context: context,
             builder: (BuildContext context) {
               return
-                AddPicFilter(color: Colors.teal.shade400, items: _con.etiquetas, onTap: (lista){print(lista);},); }
+                AddPicFilter(
+                  color: Colors.teal.shade400,
+                  items: _con.etiquetas,
+                  getImageFromCamera: (lista) async {
+                    LocationData location = await _con.getLocation();
+                    Uint8List? picData = await _con.getFromCamera();
+                    _con.addImage(CustomImage(picData!, location), lista);
+                  },
+                  getImageFromGallery: (lista) async{
+                    LocationData location = await _con.getLocation();
+                    Uint8List? picData = await _con.getFromGallery();
+                    _con.addImage(CustomImage.fromGallery(picData!, location),lista);
+                  },
+                );
+            }
         );
       },
     )
@@ -219,7 +240,7 @@ class _MyHomePageState extends StateMVC {
           child: FloatingActionButton(
             onPressed:(){
               //GUARDAR
-              _con.getFromGallery().then((value) => filter.add(value!));
+              //_con.getFromGallery().then((value) => filter.add(value!));
               showSecond();},
             heroTag: 'addFromGallery',
             child: Icon(icon,color: Colors.white,),
@@ -233,7 +254,7 @@ class _MyHomePageState extends StateMVC {
           child: FloatingActionButton(
             onPressed:(){
               if(isSecondVisible) {
-                _con.getFromCamera().then((value) => filter.add(value!));
+                //_con.getFromCamera().then((value) => filter.add(value!));
                 showSecond();
               }
               else{showSecond();}
@@ -241,6 +262,20 @@ class _MyHomePageState extends StateMVC {
             heroTag: 'addFromCamera',
             child: Icon(isSecondVisible ? icon: Icons.add ,color: Colors.white,),
           ));
+  }
+  _getColorByName(String colorName){
+    PaletteColor.hueColors.map((element) {
+      if(element.name == colorName){
+        return element.color;
+      }
+    });
+  }
+  _getHueColorByName(String colorName){
+    PaletteColor.hueColors.map((element) {
+      if(element.name == colorName){
+        return element.hueColor;
+      }
+    });
   }
 
   /*
@@ -258,5 +293,9 @@ class _MyHomePageState extends StateMVC {
     );
   }
    */
+
+
+
+
 
 }

@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:pkarte/src/models/label.dart';
 import 'package:pkarte/src/ui/components/custom_button.dart';
 import 'package:provider/provider.dart';
-
 import '../../models/filter.dart';
+import '../../models/palette_enum.dart';
 
 
 class FilterComponent extends StatefulWidget {
@@ -25,7 +25,7 @@ class _FilterComponentState extends State<FilterComponent> {
   void getActiveFilters() {
     widget.items!.forEach((element) {
       if (element.isActive) {
-        actives.add(element.id);
+        actives.add(element.id!);
       }
     });
   }
@@ -131,7 +131,7 @@ class _FilterComponentState extends State<FilterComponent> {
               children: [
                 CircleAvatar(
                   radius: 16,
-                  backgroundColor: item.color!.color,
+                  backgroundColor:getColorByName(item.color),
                   child: const Icon(
                     Icons.location_on,
                     size: 23,
@@ -150,10 +150,10 @@ class _FilterComponentState extends State<FilterComponent> {
             ),
             CupertinoSwitch(
                 activeColor: widget.color,
-                value: filter.etiquetas.contains(item),
+                value: filter.labels.contains(item),
                 onChanged: (bool newValue){
                   if(newValue){
-                    if(filter.etiquetas.contains(item)==false){
+                    if(filter.labels.contains(item)==false){
                     filter.add(item);
                     }
                   }
@@ -167,5 +167,13 @@ class _FilterComponentState extends State<FilterComponent> {
       ),
     );
   }
-}
+  
+  Color? getColorByName(String colorName){
+    return PaletteColor.hueColors.singleWhere((element) => element.name == colorName,orElse: ()=>PaletteColor.magenta).color;
+  }
+  
+  double? getHueColorByName(String colorName){
+    return PaletteColor.hueColors.singleWhere((element) => element.name == colorName,orElse: ()=>PaletteColor.magenta).hueColor;
+  }
 
+}

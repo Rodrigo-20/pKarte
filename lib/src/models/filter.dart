@@ -3,21 +3,21 @@ import 'package:flutter/material.dart';
 import 'label.dart';
 
 class FilterModel extends ChangeNotifier{
-  final  List<Label> _etiquetas = [];
+  final  List<Label> _labels = [];
 
-  List<Label> get etiquetas => _etiquetas;
+  List<Label> get labels => _labels;
 
-  void add(Label etiqueta) {
-    _etiquetas.add(etiqueta);
+  void add(Label label) {
+    _labels.add(label);
     notifyListeners();
   }
 
-  void remove(Label etiqueta){
-    _etiquetas.remove(etiqueta);
+  void remove(Label label){
+    _labels.remove(label);
     notifyListeners();
   }
 
-  bool contains(Label etiqueta){
-    return _etiquetas.contains(etiqueta);
+  bool contains(Label label){
+    return _labels.contains(label);
   }
 }

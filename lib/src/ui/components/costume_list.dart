@@ -38,10 +38,10 @@ class CustomColorList extends StatelessWidget {
     return (
         SwitchListTile(
           title: Text(item.name!),
-          value: filter.etiquetas.contains(item),
+          value: filter.labels.contains(item),
           onChanged: (bool newValue){
              if(newValue){
-               if(filter.etiquetas.contains(item)==false){
+               if(filter.labels.contains(item)==false){
                  filter.add(item);
                }
              }

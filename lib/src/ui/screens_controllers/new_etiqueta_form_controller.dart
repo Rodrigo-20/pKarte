@@ -33,9 +33,9 @@ class EtiquetaFormController extends ControllerMVC {
 
   void addEtiqueta( ) {
     if(nameController.text!= ""){
-    Label etiqueta = Label(name: nameController.text, description: descriptionController.text,color: currentColor);
+    Label etiqueta = Label(name: nameController.text, description: descriptionController.text,color: currentColor!.name);
 
-    dataBase.addEtiqueta(etiqueta);
+    dataBase.addLabel(etiqueta);
     nameController.text = "";
     descriptionController.text = "";
     }

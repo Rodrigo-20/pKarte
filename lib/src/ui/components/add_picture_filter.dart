@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pkarte/src/models/label.dart';
@@ -5,15 +7,17 @@ import 'package:pkarte/src/ui/components/custom_button.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/filter.dart';
+import '../../models/palette_enum.dart';
 import '../screens/new_etiqueta_form.dart';
 
 
 class AddPicFilter extends StatefulWidget {
   final Color color;
   final List<Label>? items;
-  final Function(List<int>)? onTap;
+  final Function(List<int>)? getImageFromGallery;
+  final Function(List<int>)? getImageFromCamera;
   const AddPicFilter(
-      {Key? key, this.color = Colors.cyan, this.items, this.onTap})
+      {Key? key, this.color = Colors.cyan, this.items, this.getImageFromGallery, this.getImageFromCamera})
       : super(key: key);
 
   @override
@@ -26,7 +30,7 @@ class _AddPicFilterState extends State<AddPicFilter> {
   void getActiveFilters() {
     widget.items!.forEach((element) {
       if (element.isActive) {
-        actives.add(element.id);
+        actives.add(element.id!);
       }
     });
   }
@@ -68,8 +72,21 @@ class _AddPicFilterState extends State<AddPicFilter> {
               text: 'Tomar Foto',
               //padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               onTap: () {
-                getActiveFilters();
-                widget.onTap!(actives);
+
+                widget.getImageFromCamera!(actives);
+                Navigator.pop(context);
+              },
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            CustomButton(
+              backgroundColor: widget.color,
+              text: 'Agregar desde galeria',
+              //padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              onTap: () {
+
+                widget.getImageFromGallery!(actives);
                 Navigator.pop(context);
               },
             ),
@@ -79,7 +96,6 @@ class _AddPicFilterState extends State<AddPicFilter> {
             CustomButton(
               backgroundColor:widget.color ,
               text: 'Agregar Filtro',
-
               onTap:(){
                 Navigator.push(context,MaterialPageRoute(builder: (context) => const EtiquetaForm()));
               },
@@ -150,7 +166,7 @@ class _AddPicFilterState extends State<AddPicFilter> {
               children: [
                 CircleAvatar(
                   radius: 16,
-                  backgroundColor: item.color!.color,
+                  backgroundColor: getColorByName(item.color!)!,
                   child: const Icon(
                     Icons.location_on,
                     size: 23,
@@ -169,15 +185,17 @@ class _AddPicFilterState extends State<AddPicFilter> {
             ),
             CupertinoSwitch(
                 activeColor: widget.color,
-                value: filter.etiquetas.contains(item),
+                value: filter.labels.contains(item),
                 onChanged: (bool newValue){
                   if(newValue){
-                    if(filter.etiquetas.contains(item)==false){
+                    if(filter.labels.contains(item)==false){
                       filter.add(item);
+                      actives.add(item.id!);
                     }
                   }
                   else {
                     filter.remove(item);
+                    actives.remove(item.id!);
                   }
                 }
             ),
@@ -186,5 +204,13 @@ class _AddPicFilterState extends State<AddPicFilter> {
       ),
     );
   }
-}
 
+  Color? getColorByName(String colorName){
+    return PaletteColor.hueColors.singleWhere((element) => element.name == colorName,orElse: ()=>PaletteColor.magenta).color;
+
+  }
+  double? getHueColorByName(String colorName){
+    return PaletteColor.hueColors.singleWhere((element) => element.name == colorName,orElse: ()=>PaletteColor.magenta).hueColor;
+
+  }
+}

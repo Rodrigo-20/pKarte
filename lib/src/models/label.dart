@@ -1,44 +1,36 @@
-import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:pkarte/src/models/custom_image.dart';
-import 'package:pkarte/src/models/marker.dart';
 import 'package:pkarte/src/models/palette_enum.dart';
-
 import 'color_item.dart';
 
 class Label{
-  String? name;
+  int? id;
+  String name;
   String? description;
-  ColorItem? color;
-  List<Marker>? _markers = [];
+  String color;
   List<CustomImage>? images = [];
-  List<CustomLocation>? locations = [];
   bool isActive;
-  int id= _cantidad;
-  static int _cantidad= 1;
-  void _contar(){
-    _cantidad++;
-  }
-  Label({required this.name,this.description, this.color, this.isActive=false, this.locations, this.images}) {
-    color ??= PaletteColor.blue;
-    _contar();
+
+  Label({required this.name,this.description,this.id, this.color='green', this.isActive=false, this.images});
+
+  Map<String,dynamic> toMap(){
+    return{
+      'id':id,
+      'name':name,
+      'description':description,
+      'color':color
+    };
   }
 
-  Label.fromJson(Map<String,dynamic> json)
-      :name = json['name'],
-        description = json['description']?? '',
-        color = json['color'],
-        isActive = json['active'];
+  Label.fromMap(Map<String,dynamic> data)
+      : id=data['id'],
+        name = data['name'],
+        description = data['description']?? '',
+        color = data['color'],
+        isActive = false;
 
   void changeState(bool value){
     isActive = value;
   }
 
-  void addMarker(String name, double lati,double long)  {
-    CustomLocation marker = CustomLocation(id: name, longitud: long, latitude: lati);
-  }
 
-  void removeMarker(Marker marker){
-    _markers!.remove(marker);
-  }
 }
