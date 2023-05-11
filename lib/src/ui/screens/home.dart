@@ -4,13 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
+import 'package:pkarte/src/models/color_item.dart';
 import 'package:pkarte/src/models/palette_enum.dart';
 import 'package:pkarte/src/ui/components/add_picture_filter.dart';
-
 import 'package:provider/provider.dart';
 import '../../models/custom_image.dart';
 import '../../models/filter.dart';
-
+import '../../models/label.dart';
 import '../components/filter_component.dart';
 import '../screens_controllers/home_controller.dart';
 import 'package:flutter/cupertino.dart';
@@ -73,64 +73,49 @@ class _MyHomePageState extends StateMVC {
       child: ListView.builder(
         itemBuilder: (context, index) {
           return ListTile(
-            leading: Icon(Icons.location_on_outlined, color:_getColorByName(_con.etiquetas[index].color),size: 30,),
-            title: Text(_con.etiquetas[index].name),
+            leading: Icon(Icons.location_on_outlined, color:getColorByName(_con.labels[index].color),size: 30,),
+            title: Text(_con.labels[index].name),
             trailing: const Icon(Icons.delete),
             enabled: true,
           );},
-        itemCount: _con.etiquetas.length,
+        itemCount: _con.labels.length,
       ),
     );
   }
 
   _map() {
-    return Consumer<FilterModel>(
-      builder: (context,filter,child) {
-        print('algo esta pasando');
+    Marker createMarkerFromImage({required CustomImage image,required Label label}){
+        return Marker(
+            markerId: MarkerId(image.id.toString()),
+            position: LatLng(image.latitude!, image.longitude!),
+            icon: BitmapDescriptor.defaultMarkerWithHue(getHueColorByName(label.color)),
+            onTap: (){
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => Image.memory(image.imageData)),
+              );
+            }
+        );
+    }
 
-        filter.labels.length> 0 ? print(filter.labels.first.id) : print('no hay nada');
-        List<Marker> _markers = [];
-        filter.labels.forEach((element) async {
-          List<CustomImage> images = await _con.getImages(element.id!);
+    return Consumer<FilterModel>(//que va primero, el consumidor o el future builder ?
+      builder: (context,filter,child) {
+        List<Marker> markers = [];
+        filter.labels.forEach((label) async {
+          List<CustomImage> images = await _con.getImagesFromLabel(label.id!);
           images.forEach((image) {
-            print('id :');
-            print(image.id);
-            _markers.add(Marker(
-                markerId: MarkerId(image.id.toString()),
-                position: LatLng(image.latitude, image.longitude),
-                icon: BitmapDescriptor.defaultMarkerWithHue(_getHueColorByName(element.color)),
-                onTap: (){
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => Image.memory(image.imageData)),
-                  );
-                }
-            ));
+            markers.add(createMarkerFromImage(image: image, label: label));
           });
-          /*
-               if(element.images!= null) {
-                 element.images!.forEach((image) {
-                   _markers!.add(Marker(
-                       markerId: MarkerId(image.id.toString()),
-                       position: LatLng(image.latitude, image.longitude),
-                       icon: BitmapDescriptor.defaultMarkerWithHue(_getHueColorByName(element.color!)),
-                       onTap: (){
-                         Navigator.push(
-                           context,
-                           MaterialPageRoute(builder: (context) => Image.memory(image.imageData)),
-                         );
-                       }
-                   ));
-                 });
-          }*/
         });
         return Container(
           child: FutureBuilder(
-              future: _con.initLocation(),
+              future: _con.getLocation(),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
+                  print('hola mundo');
+                  print(markers.length);
                   return GoogleMap(
-                    markers:_markers.toSet(),
+                    markers:markers.toSet(),
                     myLocationEnabled: true,
                     initialCameraPosition: CameraPosition(
                       target: LatLng((snapshot.data as LocationData).latitude!, (snapshot.data as LocationData).longitude!),
@@ -146,6 +131,7 @@ class _MyHomePageState extends StateMVC {
         );
       }
     );
+
   }
 
   _floatingButtons(){
@@ -193,7 +179,7 @@ class _MyHomePageState extends StateMVC {
               context: context,
               builder: (BuildContext context) {
                 return
-                  FilterComponent(color: Colors.teal.shade400, items: _con.etiquetas, onTap: (lista){print(lista);},); }
+                  FilterComponent(color: Colors.teal.shade400, items: _con.labels, onTap: (lista){print(lista);},); }
               );
             },
          )
@@ -213,16 +199,14 @@ class _MyHomePageState extends StateMVC {
               return
                 AddPicFilter(
                   color: Colors.teal.shade400,
-                  items: _con.etiquetas,
-                  getImageFromCamera: (lista) async {
-                    LocationData location = await _con.getLocation();
-                    Uint8List? picData = await _con.getFromCamera();
-                    _con.addImage(CustomImage(picData!, location), lista);
+                  items: _con.labels,
+                  addImageFromCamera: (lista)  {
+                    _con.setCameraImageSource();
+                    _con.addImageToLabels(lista);
                   },
-                  getImageFromGallery: (lista) async{
-                    LocationData location = await _con.getLocation();
-                    Uint8List? picData = await _con.getFromGallery();
-                    _con.addImage(CustomImage.fromGallery(picData!, location),lista);
+                  addImageFromGallery: (lista) async{
+                    _con.setGalleryImageSource();
+                    _con.addImageToLabels(lista);
                   },
                 );
             }
@@ -233,69 +217,23 @@ class _MyHomePageState extends StateMVC {
 
   }
 
-  _second(IconData icon ){
-      var filter = context.watch<FilterModel>();
-      return Expanded(
-          flex: 1,
-          child: FloatingActionButton(
-            onPressed:(){
-              //GUARDAR
-              //_con.getFromGallery().then((value) => filter.add(value!));
-              showSecond();},
-            heroTag: 'addFromGallery',
-            child: Icon(icon,color: Colors.white,),
-          ));
+
+
+
+  Color getColorByName(String colorName){
+    if (PaletteColor.hueColors.isNotEmpty) {
+      ColorItem colorItem =  PaletteColor.hueColors.firstWhere((color) => color.name == colorName, orElse: () => PaletteColor.cyan  );
+      return colorItem.color;
+    }
+    else { return PaletteColor.cyan.color;}
   }
 
-  _first(IconData icon ){
-    var filter = context.watch<FilterModel>();
-      return Expanded(
-          flex: 1,
-          child: FloatingActionButton(
-            onPressed:(){
-              if(isSecondVisible) {
-                //_con.getFromCamera().then((value) => filter.add(value!));
-                showSecond();
-              }
-              else{showSecond();}
-              },
-            heroTag: 'addFromCamera',
-            child: Icon(isSecondVisible ? icon: Icons.add ,color: Colors.white,),
-          ));
+  double getHueColorByName(String colorName) {
+    if (PaletteColor.hueColors.isNotEmpty) {
+     ColorItem color =  PaletteColor.hueColors.firstWhere((color) => color.name == colorName, orElse: () => PaletteColor.cyan  );
+     return color.hueColor;
+    }
+    else {return 180.0;}
   }
-  _getColorByName(String colorName){
-    PaletteColor.hueColors.map((element) {
-      if(element.name == colorName){
-        return element.color;
-      }
-    });
-  }
-  _getHueColorByName(String colorName){
-    PaletteColor.hueColors.map((element) {
-      if(element.name == colorName){
-        return element.hueColor;
-      }
-    });
-  }
-
-  /*
-  _addButton(){
-    var filter = context.watch<FilterModel>();
-    return FloatingActionButton(
-      onPressed:(){
-        _selectedIndex == 1 ? Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const EtiquetaForm()),
-        ): _con.getFromCamera().then((value) => filter.add(value!));},
-      elevation: 8,
-      heroTag: 'add',
-      child: const Icon(Icons.add),
-    );
-  }
-   */
-
-
-
-
 
 }

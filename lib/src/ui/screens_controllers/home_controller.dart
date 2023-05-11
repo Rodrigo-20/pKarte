@@ -1,14 +1,18 @@
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:exif/exif.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:location/location.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
+import 'package:pkarte/src/interfaces/image_source.dart';
 import 'package:pkarte/src/models/custom_image.dart';
+import 'package:pkarte/src/models/gallery..dart';
+import 'package:pkarte/src/models/location_services.dart';
 import '../../managers/data_manager.dart';
+import '../../models/camera.dart';
+import '../../models/color_item.dart';
+import '../../models/filter.dart';
 import '../../models/label.dart';
 import '../../models/palette_enum.dart';
 
@@ -20,149 +24,94 @@ class HomeController extends ControllerMVC{
     return _instance!;
   }
   static  HomeController? _instance;
-
   HomeController._();
-
-
   late DataManager _dataManager ;
   static HomeController get con => _instance!;
-  List<Label> _etiquetas = [];
-  List<Label> get etiquetas => _etiquetas;
-  List pages = [];
+  List<Label> _labels = [];
+  List<Label> get labels => _labels;
   Color? currentColor;
   late List<Circle> circles = [];
-  late bool _serviceEnabled;
-  late PermissionStatus _permissionGranted;
   late LocationData locationData;
-  late Location location;
   late GoogleMapController mapController;
-  ImagePicker picker = ImagePicker();
-
+  LocationServices locationServices = LocationServices();
+  final Camera _camera = Camera();
+  final Gallery _gallery = Gallery();
+  late IImageSource imageSource;
+  FilterModel filter = FilterModel();
+  late Uint8List image;
 
   void onMapCreated(GoogleMapController controller) {
     mapController = controller;
   }
 
+  Future<LocationData> getLocation() async{
+    LocationData location = (await locationServices.getLocation());
+    return location;
+  }
+
+
   void initPage() async{
     DataManager();
-    _dataManager = DataManager.data;
-    _etiquetas = await _dataManager.getLabels();
-    await initLocation();
+    _dataManager = DataManager.instance;
+    _labels = await _dataManager.getLabels();
+    await locationServices.initLocation();
   }
-
 
   void toggle(Label item,bool value) {
-    setState(() {
-      item.changeState(value);
-      });
+    setState(() => item.changeState(value));
   }
 
-  void updateEtiquetas() async{
-    _etiquetas = await _dataManager.getLabels();
+  void updateLabels() {
+    setState(() async{
+      _labels = await _dataManager.getLabels();
+    });
   }
 
-  Future<LocationData> initLocation() async{
-    location = Location();
-    _serviceEnabled = await location.serviceEnabled();
-    if (!_serviceEnabled) {
-      _serviceEnabled = await location.requestService();
-      if (!_serviceEnabled) {
-        throw Exception('location is not enabled');
-      }
-    }
-
-    _permissionGranted = await location.hasPermission();
-    if (_permissionGranted == PermissionStatus.denied) {
-      _permissionGranted = await location.requestPermission();
-      if (_permissionGranted != PermissionStatus.granted) {
-        throw Exception('location is not enabled');
-      }
-    }
-
-    locationData = await location.getLocation();
-    circles.add(Circle(circleId: CircleId('source'),center: LatLng(locationData.latitude!, locationData.longitude!), radius: 4, fillColor:Colors.blueAccent,strokeColor: Colors.blueAccent));
-    return locationData;
+  void setCameraImageSource(){
+    imageSource = _camera;
   }
 
-  Future<LocationData> getLocation () async{
-      LocationData data =await location.getLocation();
-      return data;
+  void setGalleryImageSource(){
+    imageSource = _gallery;
   }
 
-  Future<Uint8List?> getFromCamera() async {
-    Uint8List bytes;
-    XFile? pickedImage = await picker.pickImage( source: ImageSource.camera, maxWidth: 1800, maxHeight: 1800,);
-    if (pickedImage != null) {
-      File imageFile = File(pickedImage.path);
-      bytes = await imageFile.readAsBytes();
-      return bytes;
-      //return Label(images: [CustomImage(image: Image.file(imageFile),longitude: locData.longitude!,latitude: locData.latitude!,id: '${locData.latitude.toString()}')], name: 'foto Nueva');
-    }
-    else { print('something went wrong'); return null;}
+  Future<void> getImageData() async{
+    Uint8List? imageData = await imageSource.getImageData();
+    image = imageData!;
   }
 
-  Future<Uint8List?> getFromGallery() async {
 
-    XFile? pickedImage = await picker.pickImage( source: ImageSource.gallery, maxWidth: 300, maxHeight: 300,);
-    //LocationData locData = await getLocation();
-
-    if (pickedImage != null) {
-      File imageFile = File(pickedImage.path);
-      final bytes = await imageFile.readAsBytesSync();
-      return bytes;
-      /*final data = await readExifFromBytes(bytes);
-      data.entries.forEach((element) {
-        if(element.key.endsWith('Latitude')){
-          latitude = fractionToDouble(element.value.values.toList());
-          print(element.value.tagType);
-        }
-        if(element.key.endsWith('Longitude')){
-          longitude = fractionToDouble(element.value.values.toList());
-        }
-      });
-      for (var entry in data.entries) {
-        print("${entry.key}: ${entry.value}");
-      }*/
-      //return Label(images: [CustomImage(image: Image.file(imageFile),longitude: longitude!,latitude: latitude!,id: '${latitude.toString()}')], name: 'foto Nueva');
-    }
-    else { print('something went wrong'); return null;}
+  Future<void> addImageToLabels(List<int> labels) async{
+    LocationData location = await locationServices.getLocation();
+    Uint8List? imageData = await imageSource.getImageData();
+    CustomImage image = CustomImage(imageData!, location);
+    _dataManager.addImageToLabels(image, labels);
   }
 
-  double fractionToDouble(List<dynamic> coord){
-    double doubleCordinate;
-    Ratio grades = coord[0];
-    Ratio mins = coord[1];
-    Ratio secs = coord[2];
-    doubleCordinate = -1*(grades.toDouble() + mins.toDouble()/60 + secs.toDouble()/3600);
-    return doubleCordinate;
-  }
-
-  void addImage(CustomImage image,List<int> labels){
-    _dataManager.addImage(image, labels);
-  }
-
-  Future<List<CustomImage>> getImages(int labelId) async{
+  Future<List<CustomImage>> getImagesFromLabel(int labelId) async{
     List<CustomImage> images = await _dataManager.getImages(labelId);
     return images;
   }
+
   void selectColor(Color color){
     setState(() {
       currentColor = color;
     });
   }
 
-  getColorByName(String colorName){
-    PaletteColor.hueColors.map((element) {
-      if(element.name == colorName){
-        return element.color;
-      }
-    });
+  Color getColorByName(String colorName){
+    if (PaletteColor.hueColors.isNotEmpty) {
+      ColorItem colorItem =  PaletteColor.hueColors.firstWhere((color) => color.name == colorName, orElse: () => PaletteColor.cyan  );
+      return colorItem.color;
+    }
+    else { return PaletteColor.cyan.color;}
   }
-  getHueColorByName(String colorName){
-    PaletteColor.hueColors.map((element) {
-      if(element.name == colorName){
-        return element.hueColor;
-      }
-    });
+
+  double getHueColorByName(String colorName) {
+    if (PaletteColor.hueColors.isNotEmpty) {
+      ColorItem color =  PaletteColor.hueColors.firstWhere((color) => color.name == colorName, orElse: () => PaletteColor.cyan  );
+      return color.hueColor;
+    }
+    else {return 180.0;}
   }
 }

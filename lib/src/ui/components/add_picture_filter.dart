@@ -14,10 +14,10 @@ import '../screens/new_etiqueta_form.dart';
 class AddPicFilter extends StatefulWidget {
   final Color color;
   final List<Label>? items;
-  final Function(List<int>)? getImageFromGallery;
-  final Function(List<int>)? getImageFromCamera;
+  final Function(List<int>)? addImageFromGallery;
+  final Function(List<int>)? addImageFromCamera;
   const AddPicFilter(
-      {Key? key, this.color = Colors.cyan, this.items, this.getImageFromGallery, this.getImageFromCamera})
+      {Key? key, this.color = Colors.cyan, this.items, this.addImageFromGallery, this.addImageFromCamera})
       : super(key: key);
 
   @override
@@ -26,11 +26,11 @@ class AddPicFilter extends StatefulWidget {
 
 class _AddPicFilterState extends State<AddPicFilter> {
   ScrollController scrollController = ScrollController();
-  List<int> actives = [];
+  List<int> activesLabels = [];
   void getActiveFilters() {
     widget.items!.forEach((element) {
       if (element.isActive) {
-        actives.add(element.id!);
+        activesLabels.add(element.id!);
       }
     });
   }
@@ -72,8 +72,7 @@ class _AddPicFilterState extends State<AddPicFilter> {
               text: 'Tomar Foto',
               //padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               onTap: () {
-
-                widget.getImageFromCamera!(actives);
+                widget.addImageFromCamera!(activesLabels);
                 Navigator.pop(context);
               },
             ),
@@ -85,8 +84,7 @@ class _AddPicFilterState extends State<AddPicFilter> {
               text: 'Agregar desde galeria',
               //padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               onTap: () {
-
-                widget.getImageFromGallery!(actives);
+                widget.addImageFromGallery!(activesLabels);
                 Navigator.pop(context);
               },
             ),
@@ -190,12 +188,12 @@ class _AddPicFilterState extends State<AddPicFilter> {
                   if(newValue){
                     if(filter.labels.contains(item)==false){
                       filter.add(item);
-                      actives.add(item.id!);
+                      activesLabels.add(item.id!);
                     }
                   }
                   else {
                     filter.remove(item);
-                    actives.remove(item.id!);
+                    activesLabels.remove(item.id!);
                   }
                 }
             ),

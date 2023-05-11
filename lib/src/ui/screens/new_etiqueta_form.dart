@@ -14,11 +14,11 @@ class EtiquetaForm extends StatefulWidget {
 }
 
 class _EtiquetaFormState extends StateMVC {
-  _EtiquetaFormState() :super(EtiquetaFormController()) {
-    _con = EtiquetaFormController().con;
+  _EtiquetaFormState() :super(LabelFormController()) {
+    _con = LabelFormController().con;
   }
 
-  late EtiquetaFormController _con;
+  late LabelFormController _con;
 
   @override
   void initState() {
@@ -78,7 +78,7 @@ class _EtiquetaFormState extends StateMVC {
                 //padding: EdgeInsets.symmetric(vertical: 10,horizontal: 30),
                 text: 'Guardar',
                   onTap:(){
-                    _con.addEtiqueta();
+                    _con.addLabel();
                     Navigator.pop(context);},
                   ),
             ],

@@ -1,6 +1,5 @@
 import 'package:mvc_pattern/mvc_pattern.dart';
 import 'package:pkarte/src/data_access/database.dart';
-import 'package:pkarte/src/data_access/dummy.dart';
 import 'package:pkarte/src/interfaces/data_access.dart';
 import 'package:pkarte/src/models/custom_image.dart';
 import '../models/label.dart';
@@ -13,31 +12,31 @@ class DataManager extends ControllerMVC{
   //esta bien que el data manager tenga una referencia del controlador ?
   static DataManager? _this;
 
-  DataManager._internal(this.dataAccess);
-  static DataManager get data => _this!;
+  DataManager._internal(this._dataAccess);
+  static DataManager get instance => _this!;
 
-  final IDataAccess dataAccess;
+  final IDataAccess _dataAccess;
 
-  void addImage(CustomImage image, List<int> labels){
-    dataAccess.addImage(image, labels);
+  void addImageToLabels(CustomImage image, List<int> labels) async{
+    await _dataAccess.addImageToLabels(image, labels);
   }
 
   Future<List<CustomImage>> getImages(int labelId) async{
-    return dataAccess.getImages(labelId);
+    List<CustomImage> images = [];
+    images = await _dataAccess.getImagesFromLabel(labelId);
+    return images;
   }
+
   Future<List<Label>> getLabels()async{
-    return  dataAccess.getLabels();
+    return  _dataAccess.getLabels();
   }
 
-  void saveEtiquetas(List<Label> etiquetas){
-    dataAccess.saveEtiquetas(etiquetas);
-  }
 
-  void addLabel(Label etiqueta){
-    dataAccess.addLabel(etiqueta);
+  void addLabel(Label label){
+    _dataAccess.addLabel(label);
   }
 
   void removeEtiqueta(Label etiqueta){
-    dataAccess.removeEtiqueta(etiqueta);
+    _dataAccess.removeEtiqueta(etiqueta);
   }
 }

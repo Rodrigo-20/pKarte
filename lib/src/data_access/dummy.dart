@@ -41,7 +41,7 @@ class DummyData implements IDataAccess {
   }
 
   @override
-  Future<void> addImage(CustomImage image, List<int> labels) {
+  Future<void> addImageToLabels(CustomImage image, List<int> labels) {
     // TODO: implement addImage
     throw UnimplementedError();
   }
@@ -53,7 +53,7 @@ class DummyData implements IDataAccess {
   }
 
   @override
-  Future<List<CustomImage>> getImages(int LabelId) {
+  Future<List<CustomImage>> getImagesFromLabel(int LabelId) {
     // TODO: implement getImages
     throw UnimplementedError();
   }

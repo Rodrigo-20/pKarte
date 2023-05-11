@@ -65,15 +65,15 @@ class Helper implements IDataAccess{
   }
 
   @override
-  Future<void> addImage(CustomImage image, List<int> labels) async {
+  Future<void> addImageToLabels(CustomImage image, List<int> labels) async {
     print('guardando imagen');
     print('labels');
     print(labels.length);
     final data = await db;
+    int imageId = await data.insert('images',image.toMap());
     for(int i= 0; i< labels.length; i++){
-    int id = await data.insert('images',image.toMap());
-    print(id);
-    await data.insert('images_labels',{'image_id':id,'label_id':labels[i]});
+    print(imageId);
+    await data.insert('images_labels',{'image_id':imageId,'label_id':labels[i]});
     }
   }
 
@@ -99,16 +99,18 @@ class Helper implements IDataAccess{
 
 
   @override
-  Future<List<CustomImage>> getImages(int LabelId) async {
+  Future<List<CustomImage>> getImagesFromLabel(int LabelId) async {
     // TODO: implement getImages
     List<CustomImage> images = [];
     print('trayebdo imagenes');
     final data = await db;
-    final List<Map<String,dynamic>> images_id = await data.query('images_labels',columns: ['image_id'],where:"label_id = ?",whereArgs: [LabelId]);
-    print(images_id.length);
+    final List<Map<String,dynamic>> images_id = await data.query('images_labels',columns: ['image_id'],where:'label_id = ?',whereArgs: [LabelId]);
+    print('images_id:  ');
+    print(images_id);
+    print(images_id.first['image_id']);
     for(int i = 0; i< images_id.length; i++){
       print(images_id[i]['id']);
-      CustomImage image = await getImage(images_id[i]['id']);
+      CustomImage image = await getImage(images_id[i]['image_id']);
       images.add(image);
     }
     return images;
@@ -120,7 +122,7 @@ class Helper implements IDataAccess{
       'images',
       where:'id = ?',
       whereArgs: [imageId]);
-
+    print(image.first['latitude']);
     return CustomImage.fromMap(image.first);
   }
 

@@ -5,21 +5,20 @@ import 'package:pkarte/src/managers/data_manager.dart';
 import 'package:pkarte/src/models/color_item.dart';
 import '../../models/label.dart';
 
-class EtiquetaFormController extends ControllerMVC {
+class LabelFormController extends ControllerMVC {
 
-  factory EtiquetaFormController(){
-    if (_instance == null) { _instance = EtiquetaFormController._();}
+  factory LabelFormController(){
+    if (_instance == null) { _instance = LabelFormController._();}
     return _instance!;
   }
     final TextEditingController nameController = TextEditingController();
     final TextEditingController descriptionController = TextEditingController();
-    static EtiquetaFormController? _instance;
-    DataManager dataBase = DataManager.data;
-    EtiquetaFormController._();
-
-    EtiquetaFormController get con => _instance!;
+    static LabelFormController? _instance;
+    LabelFormController get con => _instance!;
+    DataManager dataManager = DataManager.instance;
     List <TextEditingController> textControllers = [];
     ColorItem? currentColor;
+    LabelFormController._();
 
     void initPage(){
       textControllers.add(nameController);
@@ -31,11 +30,10 @@ class EtiquetaFormController extends ControllerMVC {
       });
     }
 
-  void addEtiqueta( ) {
-    if(nameController.text!= ""){
-    Label etiqueta = Label(name: nameController.text, description: descriptionController.text,color: currentColor!.name);
-
-    dataBase.addLabel(etiqueta);
+  void addLabel( ) {
+    if(nameController.text.isNotEmpty){
+    Label label = Label(name: nameController.text, description: descriptionController.text,color: currentColor!.name);
+    dataManager.addLabel(label);
     nameController.text = "";
     descriptionController.text = "";
     }
